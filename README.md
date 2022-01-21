@@ -16,6 +16,7 @@ filestructure is following:
 -add unit tests
 -add required functionality...
 -install and run instructions
+-make a web app using web sockets and Javascript
 
 
 ## how to run:

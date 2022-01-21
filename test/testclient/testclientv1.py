@@ -33,5 +33,6 @@ def receive():
         jsonstring = json_object.decode('utf8', errors='ignore')
         print("d",jsonstring)
         e = json.loads(jsonstring)
+        print("should print addLine")
         viewtestv1.addLine(e)
 
