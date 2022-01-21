@@ -1,6 +1,6 @@
 # whiteboard
 
-WHITEBOARD
+#WHITEBOARD
 
 filestructure is following:
 -src application source code
@@ -8,7 +8,9 @@ filestructure is following:
 
 -src/utuls folder has folders /gui and /protocol, and python files guiv1.py, server_main.py and client_main.py
 
-TODO: 
+##TODO: 
+
+-fix readme.md
 -move guiv1.py to /gui
 -create a main for client and server, client_main.py should call client python file(clientv1.py) and gui python file(guiv1.py)
 -add requirements.txt (pip3 install -r requirements.txt)
@@ -16,7 +18,8 @@ TODO:
 -add required functionality...
 -install and run instructions
 
-how to run:
+
+##how to run:
 install python3
 install pip3
 pip3 install -r requirements.txt
@@ -35,7 +38,9 @@ drawing to the first canvas will be hown on the second canvas.
 
 
 
-Requirements: You are supposed to design your own protocols for a real-time interactive
+#Requirements:
+
+You are supposed to design your own protocols for a real-time interactive
 whiteboard app. For evaluation, you need to implement a prototype of the whiteboard app using the
 protocols, and test its performance.
 
