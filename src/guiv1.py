@@ -16,7 +16,7 @@ def setColor(newcolor):
 def addLine(event):
     global lastx, lasty
     id = canvas.create_line((lastx, lasty, event.x, event.y), fill=color)
-    print("first print",id,lastx, lasty, event.x, event.y)
+    #print("first print",id,lastx, lasty, event.x, event.y)
     e={
         'id': id,
         'time': time.time(),
