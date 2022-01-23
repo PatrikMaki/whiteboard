@@ -1,4 +1,4 @@
-import utils.gui.guiv1 as gui
+import utils.gui.guiv2 as gui
 import utils.protocol.client.clientv1 as client
 
 def main():

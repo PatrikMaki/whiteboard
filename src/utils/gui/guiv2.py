@@ -67,7 +67,7 @@ class Gui:
         id = canvas.create_rectangle((10, 60, 30, 80), fill="blue")
         canvas.tag_bind(id, "<Button-1>", lambda x: setColor("blue"))
         '''
-        id = self.canvas.create_rectangle((10, 80, 50, 120), fill="white")
+        id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
         self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
 
         root.mainloop()
