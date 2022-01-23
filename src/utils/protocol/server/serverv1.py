@@ -14,9 +14,9 @@ events = []
 
 def update_events(c,i):
     global events
-    print("update events",len(events),i)
+    #print("update events",len(events),i)
     if i<len(events):
-            print("server should start sending")
+            #print("server should start sending")
             while i<len(events):
                 json_object = json.dumps(events[i])
                 n = len(json_object).to_bytes(4, byteorder='big')
@@ -29,13 +29,13 @@ def update_events(c,i):
 def threaded(c):
     c.settimeout(0.5)
     i=0
-    print("new client",c)
+    #print("new client",c)
     while True:
         data=None
         try:
             # data received from client
             data = c.recv(4)
-            print("a",data)
+            #print("a",data)
         except socket.timeout:
             #print("Didn't receive data! [Timeout 0.5s]")
             i = update_events(c,i)
@@ -50,11 +50,11 @@ def threaded(c):
         i = update_events(c,i)
 
         n = int.from_bytes(data,byteorder='big')
-        print("b",n)
+        #print("b",n)
         json_object = c.recv(n)
-        print("c",json_object)
+        #print("c",json_object)
         jsonstring = json_object.decode('utf8', errors='ignore')
-        print("d",jsonstring)
+        #print("d",jsonstring)
         e = json.loads(jsonstring)
         events.append(e)
         # reverse the given string from client
