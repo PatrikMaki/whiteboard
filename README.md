@@ -23,10 +23,10 @@ filestructure is following:
 install python3
 install pip3
 pip3 install -r requirements.txt
-
-start src/utils/protocol/server/serverv1.py in a separate terminal
-start src/guiv1.py in a separate terminal
-start test/testv1.py
+cd src
+python3 server_main.py #in a separate terminal
+python3 client_main.py #in a separate terminal
+python3 ../test/testv1.py #in a separate terminal
 
 drawing to the first canvas will be hown on the second canvas.
 
