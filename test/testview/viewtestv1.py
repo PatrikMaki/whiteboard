@@ -52,7 +52,7 @@ def main():
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
 
-    canvas = Canvas(root)
+    canvas = Canvas(root, background="black")
     canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 #   canvas.bind("<Button-1>", savePosn)
     #canvas.bind("<B1-Motion>", addLine)
