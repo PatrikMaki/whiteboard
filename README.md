@@ -25,7 +25,7 @@ install pip3
 pip3 install -r requirements.txt
 
 start src/utils/protocol/server/serverv1.py in a separate terminal
-start src/utils/guiv1.py in a separate terminal
+start src/guiv1.py in a separate terminal
 start test/testv1.py
 
 drawing to the first canvas will be hown on the second canvas.
