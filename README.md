@@ -22,7 +22,8 @@ filestructure is following:
 ## how to run:
 install python3
 install pip3
-pip3 install -r requirements.txt
+sudo apt install python3-tk
+pip3 install -r requirements.txt #add this
 cd src
 python3 server_main.py #in a separate terminal
 python3 client_main.py #in a separate terminal
