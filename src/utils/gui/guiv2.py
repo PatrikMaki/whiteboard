@@ -67,7 +67,16 @@ class Gui:
         id = canvas.create_rectangle((10, 60, 30, 80), fill="blue")
         canvas.tag_bind(id, "<Button-1>", lambda x: setColor("blue"))
         '''
-        id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
-        self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
+        #id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
+        #self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
+
+        btn = Button(root, text='QUIT!', width=5,
+             height=5, bd='10', command=root.destroy)
+        btn.place(x=10, y=0)
+        btn = Button(root, text='print', width=5,
+             height=5, bd='10', command= lambda: self.printLine())
+        btn.place(x=10, y=150)
+
+
 
         root.mainloop()
