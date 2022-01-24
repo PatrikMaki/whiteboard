@@ -23,6 +23,30 @@ class Client:
         #global s
         self.s.sendall(n)
         self.s.sendall(json_object.encode("utf8"))
+    #TODO make new code work!:
+    def receive(self,gui):
+        print("receive")
+        #global data
+        #data = s.recv(1024)
+        #global s
+        while True:
+            try:
+                # data received from server
+                data = self.s.recv(4)
+                print("a",data)
+            except socket.timeout:
+                print("Didn't receive data! [Timeout 0.5s]")
+                continue
+            n = int.from_bytes(data,byteorder='big')
+            print("b",n)
+            json_object = self.s.recv(n)
+            print("c",json_object)
+            jsonstring = json_object.decode('utf8', errors='ignore')
+            print("d",jsonstring)
+            e: dict = json.loads(jsonstring)
+            print("should print addLine")
+            #viewtestv1.addLine(e)
+            gui.addLineFromClient(e)
         
 
 

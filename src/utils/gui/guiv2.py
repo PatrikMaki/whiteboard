@@ -39,6 +39,22 @@ class Gui:
         self.client.send(e) #TODO: call from client_main DONE
         #print("print line",id,lastx, lasty, event.x, event.y)
     
+    #new code
+    def addLineFromClient(self,rec_e:dict):
+        print("guiv2 addlinefromclient")
+        #e: dict = self.client.receive()
+        id = self.canvas.create_line((rec_e["x1"], rec_e["y1"], rec_e["x2"], rec_e["y2"]), fill="blue")
+        e={
+            'id': id,
+            'time': time.time(),
+            'type': 'line',
+            'x1': rec_e["x1"],
+            'y1': rec_e["y1"],
+            'x2': rec_e["x2"],
+            'y2': rec_e["y2"]
+        }
+        self.events.append(e)
+
 
     def printLine(self):
         for event in self.events:
@@ -77,6 +93,6 @@ class Gui:
              height=5, bd='10', command= lambda: self.printLine())
         btn.place(x=10, y=150)
 
-
+        #self.addLineFromClient()
 
         root.mainloop()

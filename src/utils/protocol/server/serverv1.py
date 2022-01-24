@@ -15,21 +15,22 @@ class Server:
 
     events = []
 
-    def update_events(self,c,i):
+    def update_events(self,c,i, addr):
         #global events
         #print("update events",len(events),i)
         if i<len(self.events):
                 #print("server should start sending")
                 while i<len(self.events):
-                    json_object = json.dumps(self.events[i])
-                    n = len(json_object).to_bytes(4, byteorder='big')
-                    c.sendall(n)
-                    c.sendall(json_object.encode("utf8"))
+                    if self.events[i]["address"]!=addr:
+                        json_object = json.dumps(self.events[i])
+                        n = len(json_object).to_bytes(4, byteorder='big')
+                        c.sendall(n)
+                        c.sendall(json_object.encode("utf8"))
                     i+=1
         return i
 
     # thread function
-    def threaded(self, c):
+    def threaded(self, c, addr):
         c.settimeout(0.5)
         i=0
         #print("new client",c)
@@ -41,7 +42,7 @@ class Server:
                 #print("a",data)
             except socket.timeout:
                 #print("Didn't receive data! [Timeout 0.5s]")
-                i = self.update_events(c,i)
+                i = self.update_events(c,i,addr)
                 continue
         
             if not data:
@@ -49,8 +50,8 @@ class Server:
                 # lock released on exit
                 self.print_lock.release()
                 break
-        
-            i = self.update_events(c,i)
+            
+            i = self.update_events(c,i,addr)
 
             n = int.from_bytes(data,byteorder='big')
             #print("b",n)
@@ -59,6 +60,7 @@ class Server:
             jsonstring = json_object.decode('utf8', errors='ignore')
             #print("d",jsonstring)
             e = json.loads(jsonstring)
+            e["address"] = addr
             self.events.append(e)
             # reverse the given string from client
             #data = data[::-1]
@@ -97,7 +99,7 @@ class Server:
             print('Connected to :', addr[0], ':', addr[1])
   
             # Start a new thread and return its identifier
-            start_new_thread(self.threaded, (c,))
+            start_new_thread(self.threaded, (c,addr))
             self.print_lock.release()
         s.close()
   
