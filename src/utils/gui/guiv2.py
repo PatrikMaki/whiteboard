@@ -1,7 +1,9 @@
 #move gui here
 from tkinter import *
 from tkinter import ttk
+#from PIL import ImageTk,Image does not work?
 import time
+import base64
 
 #a="global"
 class Gui:
@@ -39,7 +41,6 @@ class Gui:
         self.client.send(e) #TODO: call from client_main DONE
         #print("print line",id,lastx, lasty, event.x, event.y)
     
-    #new code
     def addLineFromClient(self,rec_e:dict):
         print("guiv2 addlinefromclient")
         #e: dict = self.client.receive()
@@ -55,6 +56,38 @@ class Gui:
         }
         self.events.append(e)
 
+    #addphoto
+    def addPhoto(self):
+        #
+        with open("photo.gif", "rb") as image:
+            image_data_base64_encoded_string = base64.b64encode(image.read()) 
+        img=PhotoImage(data=image_data_base64_encoded_string)
+        id = self.canvas.create_image(300, 300,anchor=NW, image=img)
+        e={
+            'id': id,
+            'time': time.time(),
+            'type': 'image',
+            'x1': 300,
+            'y1': 300,
+            'image': image_data_base64_encoded_string.decode("utf-8")
+        }
+        self.events.append(e)
+        self.client.send(e)
+
+    def addPhotoFromClient(self,rec_e:dict):
+        #
+         
+        img=PhotoImage(data=rec_e["image"].encode("utf8"))
+        id = self.canvas.create_image(rec_e["x1"], rec_e["y1"],anchor=NW, image=img)
+        e={
+            'id': id,
+            'time': time.time(),
+            'type': 'image',
+            'x1': rec_e["x1"],
+            'y1': rec_e["y1"],
+            'image': rec_e["image"]
+        }
+        self.events.append(e)
 
     def printLine(self):
         for event in self.events:
@@ -92,6 +125,10 @@ class Gui:
         btn = Button(root, text='print', width=5,
              height=5, bd='10', command= lambda: self.printLine())
         btn.place(x=10, y=150)
+        btn = Button(root, text='show gif', width=5,
+             height=5, bd='10', command= lambda: self.addPhoto())
+        btn.place(x=10, y=250)
+
 
         #self.addLineFromClient()
 
