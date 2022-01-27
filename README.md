@@ -2,32 +2,32 @@
 
 
 filestructure is following:
--src application source code
--test test source code
+- src application source code
+- test test source code
 
--src/utuls folder has folders /gui and /protocol, and python files guiv1.py, server_main.py and client_main.py
+- src/utils folder has folders /gui and /protocol, and python files guiv1.py, server_main.py and client_main.py
 
 ## TODO: 
 
--fix readme.md
--move guiv1.py to /gui
--create a main for client and server, client_main.py should call client python file(clientv1.py) and gui python file(guiv1.py)
--add requirements.txt (pip3 install -r requirements.txt)
--add unit tests
--add required functionality...
--install and run instructions
--make a web app using web sockets and Javascript
+- fix readme.md
+- move guiv1.py to /gui
+- create a main for client and server, client_main.py should call client python file(clientv1.py) and gui python file(guiv1.py)
+- add requirements.txt (pip3 install -r requirements.txt)
+- add unit tests
+- add required functionality...
+- install and run instructions
+- make a web app using web sockets and Javascript
 
 
 ## how to run:
-install python3
-install pip3
-sudo apt install python3-tk
-pip3 install -r requirements.txt #add this
-cd src
-python3 server_main.py #in a separate terminal
-python3 client_main.py #in a separate terminal
-python3 ../test/testv1.py #in a separate terminal
+- install python3
+- install pip3
+- sudo apt install python3-tk
+- pip3 install -r requirements.txt #add this
+- cd src
+- python3 server_main.py #in a separate terminal
+- python3 client_main.py #in a separate terminal
+- python3 ../test/testv1.py #in a separate terminal
 
 drawing to the first canvas will be hown on the second canvas.
 
