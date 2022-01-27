@@ -1,19 +1,29 @@
 #move gui here
 from tkinter import *
 from tkinter import ttk
+#from PIL import ImageTk,Image does not work?
 import time
+import base64
+import os
 
 #a="global"
 class Gui:
     #b="class variable in self"
     #class Gui
+    #lastx, lasty = 0,0
+    #img: Image
     events = []
+    images = []
+    lastx=1
+    lasty=1
     def set_client(self,client):
         self.client = client
 
     def savePosn(self,event):
         #global lastx, lasty
         self.lastx, self.lasty = event.x, event.y
+
+    
 
     color = "black"
     def setColor(self,newcolor):
@@ -39,7 +49,6 @@ class Gui:
         self.client.send(e) #TODO: call from client_main DONE
         #print("print line",id,lastx, lasty, event.x, event.y)
     
-    #new code
     def addLineFromClient(self,rec_e:dict):
         print("guiv2 addlinefromclient")
         #e: dict = self.client.receive()
@@ -54,14 +63,56 @@ class Gui:
             'y2': rec_e["y2"]
         }
         self.events.append(e)
+    
+    #addphoto
+    def addPhoto(self):
+        #global img
+        #global images
+        print(self.lastx)
+        with open("photo.gif", "rb") as image:
+            image_data_base64_encoded_string = base64.b64encode(image.read()) 
+        imagestring = image_data_base64_encoded_string.decode('utf-8')
+        print()
+        img=PhotoImage(data=image_data_base64_encoded_string)
+        id = self.canvas.create_image(self.lastx, self.lasty,anchor=NW, image=img)
+        #self.canvas.image= self.img
+        self.images.append(img)
+        e={
+            'id': id,
+            'time': time.time(),
+            'type': 'image',
+            'x1': self.lastx,
+            'y1': self.lasty,
+            'image': imagestring
+        }
+        self.events.append(e)
+        self.client.send(e)
+        
 
+    def addPhotoFromClient(self,rec_e:dict):
+        #
+        #global img
+        #global images
+        print("clientphotoinput")
+        img=PhotoImage(data=rec_e["image"].encode("utf8"))
+        id = self.canvas.create_image(rec_e["x1"], rec_e["y1"],anchor=NW, image=img)
+        self.images.append(img)
+        e={
+            'id': id,
+            'time': time.time(),
+            'type': 'image',
+            'x1': rec_e["x1"],
+            'y1': rec_e["y1"],
+            'image': rec_e["image"]
+        }
+        self.events.append(e)
 
     def printLine(self):
         for event in self.events:
             print(event)
 
     def run(self):
-
+        
         root = Tk()
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
@@ -88,10 +139,13 @@ class Gui:
 
         btn = Button(root, text='QUIT!', width=5,
              height=5, bd='10', command=root.destroy)
-        btn.place(x=10, y=0)
+        btn.place(x=10, y=50)
         btn = Button(root, text='print', width=5,
              height=5, bd='10', command= lambda: self.printLine())
         btn.place(x=10, y=150)
+        btn = Button(root, text='show gif', width=5,
+             height=5, bd='10', command= lambda: self.addPhoto())
+        btn.place(x=10, y=250)
 
         #self.addLineFromClient()
 

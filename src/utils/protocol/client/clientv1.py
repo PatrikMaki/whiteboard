@@ -45,8 +45,11 @@ class Client:
             print("d",jsonstring)
             e: dict = json.loads(jsonstring)
             print("should print addLine")
-            #viewtestv1.addLine(e)
-            gui.addLineFromClient(e)
+            if e["type"]=="line":
+                #viewtestv1.addLine(e)
+                gui.addLineFromClient(e)
+            else: #TODO: fix!
+                gui.addPhotoFromClient(e)
         
 
 
