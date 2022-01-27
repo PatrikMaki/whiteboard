@@ -5,6 +5,7 @@ from tkinter import ttk
 import time
 import base64
 import os
+from pathlib import Path
 
 #a="global"
 class Gui:
@@ -65,11 +66,17 @@ class Gui:
         self.events.append(e)
     
     #addphoto
-    def addPhoto(self):
+    def addPhoto(self,photo):
         #global img
         #global images
+        '''
+        generate the path to the file relative to your python script:
+        script_location = Path(__file__).absolute().parent
+        file_location = script_location / 'file.yaml'
+        file = file_location.open()
+        '''
         print(self.lastx)
-        with open("photo.gif", "rb") as image:
+        with open(photo, "rb") as image:
             image_data_base64_encoded_string = base64.b64encode(image.read()) 
         imagestring = image_data_base64_encoded_string.decode('utf-8')
         print()
@@ -138,15 +145,19 @@ class Gui:
         #self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
 
         btn = Button(root, text='QUIT!', width=5,
-             height=5, bd='10', command=root.destroy)
-        btn.place(x=10, y=50)
+             height=2, bd='10', command=root.destroy)
+        btn.place(x=0, y=0)
         btn = Button(root, text='print', width=5,
-             height=5, bd='10', command= lambda: self.printLine())
-        btn.place(x=10, y=150)
-        btn = Button(root, text='show gif', width=5,
-             height=5, bd='10', command= lambda: self.addPhoto())
-        btn.place(x=10, y=250)
-
+             height=2, bd='10', command= lambda: self.printLine())
+        btn.place(x=0, y=55)
+        btn = Button(root, text='show gif', width=10,
+             height=5, bd='10', command= lambda: self.addPhoto("red.gif"))
+        btn.place(x=0, y=110)
+        txt = Text(root, width=10, height=5, bd='10')
+        txt.place(x=105, y=210)
+        btn = Button(root, text='show gif:', width=10,
+             height=5, bd='10', command= lambda: self.addPhoto(txt.get("1.0",'end-1c')))
+        btn.place(x=0, y=210)
         #self.addLineFromClient()
 
         root.mainloop()
