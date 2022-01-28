@@ -5,6 +5,7 @@ from tkinter import ttk
 import time
 import base64
 import os
+import math
 from pathlib import Path
 
 #a="global"
@@ -16,8 +17,10 @@ class Gui:
     events = []
     images = []
     texts = []
+    #objects = []
     lastx=1
     lasty=1
+    kumi=False
     def set_client(self,client):
         self.client = client
 
@@ -149,6 +152,78 @@ class Gui:
     def printLine(self):
         for event in self.events:
             print(event)
+    def erase(self):
+        print("test")
+        if self.kumi:
+            self.kumi=False
+            self.canvas.bind("<B1-Motion>", self.addLine)
+            self.btn.config(relief=RAISED)
+        else:
+            self.kumi=True
+            #self.canvas.bind("<Button-1>", self.savePosn)
+            self.canvas.bind("<B1-Motion>", self.delete)
+            self.btn.config(relief=SUNKEN)
+        print(self.kumi)
+    
+    #def distance(x0,x1,x2,y0,y1,y2):
+        #return abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1))/math.sqrt((x2-x1)**2 + (y2 -y1)**2)
+    def dist(self, x1, y1, x2, y2, x3, y3): # x3,y3 is the point
+        px = x2-x1
+        py = y2-y1
+
+        norm = px*px + py*py
+        if norm==0:
+            norm = 1
+
+        u =  ((x3 - x1) * px + (y3 - y1) * py) / float(norm)
+
+        if u > 1:
+            u = 1
+        elif u < 0:
+            u = 0
+
+        x = x1 + u * px
+        y = y1 + u * py
+
+        dx = x - x3
+        dy = y - y3
+
+        # Note: If the actual distance does not matter,
+        # if you only want to compare what this function
+        # returns to other results of this function, you
+        # can just return the squared distance instead
+        # (i.e. remove the sqrt) to gain a little performance
+
+        dist = (dx*dx + dy*dy)**.5
+
+        return dist
+
+    def delete(self,event):
+        for a in self.events:
+            if a["type"]=="line":
+                #print(event.x, a["x1"],a["x2"],event.y,a["y1"],a["y2"])
+                x0 = event.x
+                y0 = event.y
+                x1 = a["x1"]
+                x2 = a["x2"]
+                y1 = a["y1"]
+                y2 = a["y2"]
+                #dist = self.distance(event.x, a["x1"],a["x2"],event.y,a["y1"],a["y2"])
+                #doesn't work for a finite line segment:
+                #dist = (abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1)))/(math.sqrt((x2-x1)**2 + (y2 -y1)**2))
+                
+                #let's create an imaginary box i...
+
+                #actually lets use code from the internet:
+                dist = self.dist(x1,y1,x2,x2,x0,y0)
+              
+                
+                #print(dist)
+                if dist < 10:
+                    self.canvas.delete(a["id"])
+
+
+    
 
     def run(self):
         
@@ -160,10 +235,11 @@ class Gui:
 
         self.canvas = Canvas(root, background="white")
         self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
+        
         self.canvas.bind("<Button-1>", self.savePosn)
         self.canvas.bind("<B1-Motion>", self.addLine)
 
-
+        #print(self.kumi)
 
         '''
         id = canvas.create_rectangle((10, 10, 30, 30), fill="red")
@@ -195,6 +271,9 @@ class Gui:
         btn = Button(root, text='sticky note:', width=10,
              height=5, bd='10', command= lambda: self.addNote())
         btn.place(x=0, y=300)
+        self.btn = Button(root, text="Erase", width=5,
+            height=2, bd='10', command= lambda: self.erase())
+        self.btn.place(x=65, y=0)
         #self.addLineFromClient()
 
         root.mainloop()
