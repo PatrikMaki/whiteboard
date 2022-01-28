@@ -215,7 +215,7 @@ class Gui:
                 #let's create an imaginary box i...
 
                 #actually lets use code from the internet:
-                dist = self.dist(x1,y1,x2,x2,x0,y0)
+                dist = self.dist(x1,y1,x2,y2,x0,y0)
               
                 
                 #print(dist)
