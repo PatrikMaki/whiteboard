@@ -15,6 +15,7 @@ class Gui:
     #img: Image
     events = []
     images = []
+    texts = []
     lastx=1
     lasty=1
     def set_client(self,client):
@@ -113,6 +114,37 @@ class Gui:
             'image': rec_e["image"]
         }
         self.events.append(e)
+    
+    def addNote(self):
+        note = "this is a sticky note"
+        txt=Text(width=10, height=5, bd='10',background="yellow")
+        txt.place(x=self.lastx, y=self.lasty)
+        txt.insert('1.0',note)
+        self.texts.append(txt)
+        e={
+            'time': time.time(),
+            'type': 'note',
+            'x1': self.lastx,
+            'y1': self.lasty,
+            'note': note
+        }
+        self.events.append(e)
+        self.client.send(e)
+
+    def addNoteFromClient(self,rec_e:dict):
+        txt=Text(width=10, height=5, bd='10',background="yellow")
+        txt.place(x=rec_e["x1"], y=rec_e["y1"])
+        txt.insert('1.0', rec_e["note"])
+        self.texts.append(txt)
+        e={
+            'time': time.time(),
+            'type': 'note',
+            'x1': rec_e["x1"],
+            'y1': rec_e["y1"],
+            'note': rec_e["note"]
+        }
+        self.events.append(e)
+        
 
     def printLine(self):
         for event in self.events:
@@ -151,13 +183,18 @@ class Gui:
              height=2, bd='10', command= lambda: self.printLine())
         btn.place(x=0, y=55)
         btn = Button(root, text='show gif', width=10,
-             height=5, bd='10', command= lambda: self.addPhoto("red.gif"))
+             height=5, bd='10', command= lambda: self.addPhoto("photo.gif"))
         btn.place(x=0, y=110)
         txt = Text(root, width=10, height=5, bd='10')
         txt.place(x=105, y=210)
         btn = Button(root, text='show gif:', width=10,
              height=5, bd='10', command= lambda: self.addPhoto(txt.get("1.0",'end-1c')))
         btn.place(x=0, y=210)
+        #txt2 = Text(root, width=10, height=5, bd='10')
+        #txt.place(x=105, y=300)
+        btn = Button(root, text='sticky note:', width=10,
+             height=5, bd='10', command= lambda: self.addNote())
+        btn.place(x=0, y=300)
         #self.addLineFromClient()
 
         root.mainloop()
