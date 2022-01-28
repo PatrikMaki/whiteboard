@@ -55,7 +55,7 @@ class Gui:
         #print("print line",id,lastx, lasty, event.x, event.y)
     
     def addLineFromClient(self,rec_e:dict):
-        print("guiv2 addlinefromclient")
+        #print("guiv2 addlinefromclient")
         #e: dict = self.client.receive()
         id = self.canvas.create_line((rec_e["x1"], rec_e["y1"], rec_e["x2"], rec_e["y2"]), fill="blue")
         e={
@@ -79,11 +79,11 @@ class Gui:
         file_location = script_location / 'file.yaml'
         file = file_location.open()
         '''
-        print(self.lastx)
+        #print(self.lastx)
         with open(photo, "rb") as image:
             image_data_base64_encoded_string = base64.b64encode(image.read()) 
         imagestring = image_data_base64_encoded_string.decode('utf-8')
-        print()
+        #print()
         img=PhotoImage(data=image_data_base64_encoded_string)
         id = self.canvas.create_image(self.lastx, self.lasty,anchor=NW, image=img)
         #self.canvas.image= self.img
@@ -104,7 +104,7 @@ class Gui:
         #
         #global img
         #global images
-        print("clientphotoinput")
+        #print("clientphotoinput")
         img=PhotoImage(data=rec_e["image"].encode("utf8"))
         id = self.canvas.create_image(rec_e["x1"], rec_e["y1"],anchor=NW, image=img)
         self.images.append(img)

@@ -33,18 +33,18 @@ class Client:
             try:
                 # data received from server
                 data = self.s.recv(4)
-                print("a",data)
+                #print("a",data)
             except socket.timeout:
                 print("Didn't receive data! [Timeout 0.5s]")
                 continue
             n = int.from_bytes(data,byteorder='big')
-            print("b",n)
+            #print("b",n)
             json_object = self.s.recv(n)
-            print("c",json_object)
+            #print("c",json_object)
             jsonstring = json_object.decode('utf8', errors='ignore')
-            print("d",jsonstring)
+            #print("d",jsonstring)
             e: dict = json.loads(jsonstring)
-            print("should print addLine")
+            #print("should print addLine")
             if e["type"]=="line":
                 #viewtestv1.addLine(e)
                 gui.addLineFromClient(e)
