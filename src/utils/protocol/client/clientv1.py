@@ -48,8 +48,10 @@ class Client:
             if e["type"]=="line":
                 #viewtestv1.addLine(e)
                 gui.addLineFromClient(e)
-            else: #TODO: fix!
+            elif e["type"]=="image": #fixed!
                 gui.addPhotoFromClient(e)
+            elif e["type"]=="note":
+                gui.addNoteFromClient(e)
         
 
 
