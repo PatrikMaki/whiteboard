@@ -1,11 +1,12 @@
 #move gui here
 from tkinter import *
 from tkinter import ttk
-#from PIL import ImageTk,Image does not work?
+from PIL import ImageTk,Image
 import time
 import base64
 import os
 import math
+import io
 from pathlib import Path
 
 #a="global"
@@ -70,7 +71,14 @@ class Gui:
         self.events.append(e)
     
     #addphoto
+    def image_to_byte_array(self, image:Image):
+        imgByteArr = io.BytesIO()
+        image.save(imgByteArr, format=image.format)
+        imgByteArr = imgByteArr.getvalue()
+        return imgByteArr
+
     def addPhoto(self,photo):
+
         #global img
         #global images
         '''
@@ -80,20 +88,40 @@ class Gui:
         file = file_location.open()
         '''
         #print(self.lastx)
-        with open(photo, "rb") as image:
-            image_data_base64_encoded_string = base64.b64encode(image.read()) 
-        imagestring = image_data_base64_encoded_string.decode('utf-8')
+        #with open(photo, "rb") as imag:
+        
+            #image_data_base64_encoded_string = base64.b64encode(imag.read()) 
+        #imagestring = image_data_base64_encoded_string.decode('utf-8')
         #print()
-        img=PhotoImage(data=image_data_base64_encoded_string)
+
+       
+        #
+        #
+
+        image = Image.open(photo)
+        imagestring = base64.b64encode(self.image_to_byte_array(image)).decode('utf-8')
+        img = ImageTk.PhotoImage(image)
+        #img=PhotoImage(data=image_data_base64_encoded_string)
+        #x2 = int() + self.lastx
+        #y2 = int(img.height) + self.lasty
+        print(img.height)
+        x2=img.height() + self.lastx
+        y2=img.width() + self.lasty
+        #print("x2",x2)
+        #print("Y2",y2)
         id = self.canvas.create_image(self.lastx, self.lasty,anchor=NW, image=img)
         #self.canvas.image= self.img
         self.images.append(img)
+        #imagestring = base64.b64encode(image.read())
+        #imagestring = imagestring.decode('utf-8')
         e={
             'id': id,
             'time': time.time(),
             'type': 'image',
             'x1': self.lastx,
             'y1': self.lasty,
+            'x2': x2,
+            'y2': y2,
             'image': imagestring
         }
         self.events.append(e)
@@ -114,6 +142,8 @@ class Gui:
             'type': 'image',
             'x1': rec_e["x1"],
             'y1': rec_e["y1"],
+            'x2': rec_e["x2"],
+            'y2': rec_e["y2"],
             'image': rec_e["image"]
         }
         self.events.append(e)
@@ -198,6 +228,14 @@ class Gui:
 
         return dist
 
+    def FindPoint(self,x1, y1, x2, y2, x, y):
+        #print(x1,y1,x2,y2,x,y)
+        if (x > x1 and x < x2 and
+            y > y1 and y < y2) :
+            return True
+        else :
+            return False
+
     def delete(self,event):
         for a in self.events:
             if a["type"]=="line":
@@ -221,6 +259,21 @@ class Gui:
                 #print(dist)
                 if dist < 10:
                     self.canvas.delete(a["id"])
+            elif a["type"]=="image":
+                #print("delete image?")
+                x0=event.x
+                y0=event.y
+                x1 = a["x1"]
+                x2 = a["x2"]
+                y1 = a["y1"]
+                y2 = a["y2"]
+                if self.FindPoint(x1,y1,x2,y2,x0,y0):
+                    self.canvas.delete(a["id"])
+                    #print("image deleted")
+
+                
+
+
 
 
     
