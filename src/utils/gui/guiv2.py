@@ -149,11 +149,13 @@ class Gui:
         self.events.append(e)
     
     def addNote(self):
+        #TODO add id and make text changing viewable from other clients
         note = "this is a sticky note"
-        txt=Text(width=10, height=5, bd='10',background="yellow")
+        txt=Text(width=10, height=5, bd='10',bg="gray")
         txt.place(x=self.lastx, y=self.lasty)
         txt.insert('1.0',note)
         self.texts.append(txt)
+        note = txt.get("1.0",'end-1c')
         e={
             'time': time.time(),
             'type': 'note',
@@ -235,7 +237,22 @@ class Gui:
             return True
         else :
             return False
+    def deleteFromServer(self,id):
+        e={
+            'id': id,
+            'type': 'delete'
+        }
+        self.client.send(e)
 
+    def deleteFromClient(self,e):
+        self.canvas.delete(e["id"])
+        i=0
+        while i<len(self.events):
+            if self.events[i]["id"]==e["id"]:
+                #del self.events[e["id"]]
+                del self.events[i]
+                #break
+            i+=1
     def delete(self,event):
         for a in self.events:
             if a["type"]=="line":
@@ -258,7 +275,17 @@ class Gui:
                 
                 #print(dist)
                 if dist < 10:
+                    self.deleteFromServer(a["id"])
                     self.canvas.delete(a["id"])
+                    #del self.events[a["id"]]
+                    i=0
+                    while i<len(self.events):
+                        if self.events[i]["id"]==a["id"]:
+                            #del self.events[e["id"]]
+                            del self.events[i]
+                            #break
+                        i+=1
+
             elif a["type"]=="image":
                 #print("delete image?")
                 x0=event.x
@@ -268,9 +295,21 @@ class Gui:
                 y1 = a["y1"]
                 y2 = a["y2"]
                 if self.FindPoint(x1,y1,x2,y2,x0,y0):
+                    self.deleteFromServer(a["id"])
                     self.canvas.delete(a["id"])
+                    #del self.events[a["id"]]
+                    while i<len(self.events):
+                        if self.events[i]["id"]==a["id"]:
+                            #del self.events[e["id"]]
+                            del self.events[i]
+                            #break
+                        i+=1
                     #print("image deleted")
+            #TODO add delete note
 
+    def undo(self):
+        print("undo")
+        #reverse the previous action
                 
 
 
@@ -328,5 +367,7 @@ class Gui:
             height=2, bd='10', command= lambda: self.erase())
         self.btn.place(x=65, y=0)
         #self.addLineFromClient()
-
+        btn = Button(root, text='undo', width=10,
+             height=5, bd='10', command= lambda: self.undo())
+        
         root.mainloop()

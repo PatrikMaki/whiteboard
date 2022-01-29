@@ -20,8 +20,12 @@ class Server:
         #print("update events",len(events),i)
         if i<len(self.events):
                 #print("server should start sending")
+                #print(i,len(self.events))
+                #print(self.events)
                 while i<len(self.events):
+                    #print(self.events[i]["address"]!=addr)
                     if self.events[i]["address"]!=addr:
+                        print(self.events[i])
                         json_object = json.dumps(self.events[i])
                         n = len(json_object).to_bytes(4, byteorder='big')
                         c.sendall(n)
@@ -61,7 +65,26 @@ class Server:
             #print("d",jsonstring)
             e = json.loads(jsonstring)
             e["address"] = addr
+            if e["type"]=='delete':
+                #del self.events[e["id"]]
+                #for a in self.events:
+                j=0
+                '''
+                while j<len(self.events):
+                    if self.events[j]["id"]==e["id"]:
+                        #print(self.events)
+                        del self.events[j]
+                        i-=1
+                        print("delete event",j,i)
+                        #print(self.events)
+                        break
+                    j+=1
+                '''
+            
             self.events.append(e)
+            #i = self.update_events(c,i,addr)
+            #i = self.update_events(c,i,addr)
+            #print(e)
             # reverse the given string from client
             #data = data[::-1]
   

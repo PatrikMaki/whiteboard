@@ -52,6 +52,10 @@ class Client:
                 gui.addPhotoFromClient(e)
             elif e["type"]=="note":
                 gui.addNoteFromClient(e)
+            elif e["type"]=="delete":
+                print("client delete")
+                gui.deleteFromClient(e)
+                
         
 
 
