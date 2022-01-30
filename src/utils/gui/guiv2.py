@@ -298,6 +298,7 @@ class Gui:
                     self.deleteFromServer(a["id"])
                     self.canvas.delete(a["id"])
                     #del self.events[a["id"]]
+                    i=0
                     while i<len(self.events):
                         if self.events[i]["id"]==a["id"]:
                             #del self.events[e["id"]]

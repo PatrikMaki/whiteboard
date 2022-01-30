@@ -25,7 +25,7 @@ class Server:
                 while i<len(self.events):
                     #print(self.events[i]["address"]!=addr)
                     if self.events[i]["address"]!=addr:
-                        print(self.events[i])
+                        #print(self.events[i])
                         json_object = json.dumps(self.events[i])
                         n = len(json_object).to_bytes(4, byteorder='big')
                         c.sendall(n)
