@@ -7,6 +7,7 @@ import base64
 import os
 import math
 import io
+import uuid
 from pathlib import Path
 
 #a="global"
@@ -15,9 +16,10 @@ class Gui:
     #class Gui
     #lastx, lasty = 0,0
     #img: Image
+    #id=1
     events = []
     images = []
-    texts = []
+    texts = {}
     #objects = []
     lastx=1
     lasty=1
@@ -28,8 +30,6 @@ class Gui:
     def savePosn(self,event):
         #global lastx, lasty
         self.lastx, self.lasty = event.x, event.y
-
-    
 
     color = "black"
     def setColor(self,newcolor):
@@ -147,31 +147,65 @@ class Gui:
             'image': rec_e["image"]
         }
         self.events.append(e)
+    def updateNote(self, event):
+            #self.texts.append(txt)
+            #note = self.canvas.itemcget(id).get("1.0",'end-1c')
+            print(event)
+            txt = event.widget
+            e={
+                'id': str(txt)[1:],
+                'time': time.time(),
+                'type': 'updateNote',
+                'x1': self.lastx,
+                'y1': self.lasty,
+                'note': txt.get("1.0",'end-1c')
+            }
+            self.events.append(e)
+            self.client.send(e)
+            print("sent stufff",e)
     
     def addNote(self):
         #TODO add id and make text changing viewable from other clients
-        note = "this is a sticky note"
-        txt=Text(width=10, height=5, bd='10',bg="gray")
+        
+        
+        
+        
+        note = ""
+        id = str(uuid.uuid4())
+        txt=Text(width=10, height=5, bd='10',bg="gray",name=id)
+        
+        #id = self.canvas.create_text(self.lastx, self.lasty,text=note)
+        #self.canvas.itemcget(id).bind('<Enter>',updateNote)
         txt.place(x=self.lastx, y=self.lasty)
-        txt.insert('1.0',note)
-        self.texts.append(txt)
-        note = txt.get("1.0",'end-1c')
+        #txt.tag_set("id",id)
+        #self.canvas.itemcget(id).insert('1.0',note)
+        txt.insert('1.0', note)
+        self.texts[id]=txt
+        #note = self.canvas.itemcget(id).get("1.0",'end-1c')
         e={
+            'id': id,
             'time': time.time(),
             'type': 'note',
             'x1': self.lastx,
             'y1': self.lasty,
-            'note': note
+            'note': ""
         }
         self.events.append(e)
         self.client.send(e)
+        txt.bind('<Return>',self.updateNote)
 
     def addNoteFromClient(self,rec_e:dict):
-        txt=Text(width=10, height=5, bd='10',background="yellow")
+        id = rec_e["id"]
+        txt=Text(width=10, height=5, bd='10',background="gray",name=id)
         txt.place(x=rec_e["x1"], y=rec_e["y1"])
         txt.insert('1.0', rec_e["note"])
-        self.texts.append(txt)
+        
+        #self.texts.append(txt)
+        #id = self.canvas.create_text(x=rec_e["x1"],y=rec_e["y1"],width=15, height=5, bd='10')
+        #self.canvas.itemcget(id).insert('1.0',rec_e["note"])
+        self.texts[id]=txt
         e={
+            'id': id,
             'time': time.time(),
             'type': 'note',
             'x1': rec_e["x1"],
@@ -179,6 +213,17 @@ class Gui:
             'note': rec_e["note"]
         }
         self.events.append(e)
+        txt.bind('<Return>',self.updateNote)
+        
+    def updateNoteFromClient(self,e):
+        #print("updfate",self.texts[e["id"]])
+        print(e["id"])
+        txt = self.texts[e["id"]]
+        if txt:
+            print("it works")
+            txt.insert('1.0', e["note"])
+        else:
+            print("not work")
         
 
     def printLine(self):
@@ -313,11 +358,6 @@ class Gui:
         #reverse the previous action
                 
 
-
-
-
-    
-
     def run(self):
         
         root = Tk()
@@ -370,5 +410,7 @@ class Gui:
         #self.addLineFromClient()
         btn = Button(root, text='undo', width=10,
              height=5, bd='10', command= lambda: self.undo())
+        #self.btn.place(x=65, y=0)
+
         
         root.mainloop()

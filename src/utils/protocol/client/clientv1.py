@@ -53,8 +53,10 @@ class Client:
             elif e["type"]=="note":
                 gui.addNoteFromClient(e)
             elif e["type"]=="delete":
-                print("client delete")
+                #print("client delete")
                 gui.deleteFromClient(e)
+            elif e["type"]=="updateNote":
+                gui.updateNoteFromClient(e)
                 
         
 
