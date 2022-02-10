@@ -1,4 +1,3 @@
-#move gui here
 from tkinter import *
 from tkinter import ttk
 from PIL import ImageTk,Image
@@ -359,7 +358,11 @@ class Gui:
                 
 
     def run(self):
-        
+        #TODO: make possible to work over internet.
+        #TODO: create session!
+        #TODO: invite session
+        #TODO: request to join session
+        #TODO: join session
         root = Tk()
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
