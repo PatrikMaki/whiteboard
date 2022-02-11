@@ -330,7 +330,7 @@ class Gui:
                             del self.events[i]
                             #break
                         i+=1
-
+            '''
             elif a["type"]=="image": #TODO: erase should not delete images
                 #print("delete image?")
                 x0=event.x
@@ -351,6 +351,7 @@ class Gui:
                             #break
                         i+=1
                     #print("image deleted")
+            '''
             #TODO add delete note
 
     def undo(self): #TODO: should affect drawings and images
