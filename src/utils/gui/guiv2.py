@@ -8,6 +8,7 @@ import math
 import io
 import uuid
 from pathlib import Path
+from pyscreenshot import grab
 
 #a="global"
 class Gui:
@@ -355,7 +356,33 @@ class Gui:
     def undo(self): #TODO: should affect drawings and images
         print("undo")
         #reverse the previous action
-                
+
+
+    def save_png(self):
+        # takes a screenshot of the tkinter window
+        # TODO: better place to save screenshot?
+        x = self.canvas.winfo_rootx()
+        y = self.canvas.winfo_rooty()
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
+        #print(x, y, w, h)
+        ss = grab(bbox=(x, y, w+x, h+y))
+        ss.show()
+        ss.save("./../whiteboard.png")
+
+
+    def save_jpeg(self):
+        # takes a screenshot of the tkinter window
+        # TODO: better place to save screenshot?
+        x = self.canvas.winfo_rootx()
+        y = self.canvas.winfo_rooty()
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
+        #print(x, y, w, h)
+        ss = grab(bbox=(x, y, w+x, h+y))
+        ss.show()
+        ss.save("./../whiteboard.jpeg")
+
 
     def run(self):
         #TODO: make possible to work over internet.
@@ -387,7 +414,7 @@ class Gui:
         '''
         #id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
         #self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
-
+        # TODO: make button placement look nice
         btn = Button(root, text='QUIT!', width=5,
              height=2, bd='10', command=root.destroy)
         btn.place(x=0, y=0)
@@ -414,6 +441,13 @@ class Gui:
         btn = Button(root, text='undo', width=10,
              height=5, bd='10', command= lambda: self.undo())
         #self.btn.place(x=65, y=0)
-
+        # save PNG
+        self.btn = Button(root, text="save PNG", width=10,
+                          height=2, bd='10', command=lambda: self.save_png())
+        self.btn.place(x=0, y=400)
+        # save JPEG
+        self.btn = Button(root, text="save JPEG", width=10,
+                          height=2, bd='10', command=lambda: self.save_jpeg())
+        self.btn.place(x=0, y=465)
         
         root.mainloop()
