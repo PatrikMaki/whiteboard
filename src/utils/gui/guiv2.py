@@ -234,12 +234,12 @@ class Gui:
         if self.kumi:
             self.kumi=False
             self.canvas.bind("<B1-Motion>", self.addLine)
-            self.btn.config(relief=RAISED)
+            self.erase_btn.config(relief=RAISED)
         else:
             self.kumi=True
             #self.canvas.bind("<Button-1>", self.savePosn)
             self.canvas.bind("<B1-Motion>", self.delete)
-            self.btn.config(relief=SUNKEN)
+            self.erase_btn.config(relief=SUNKEN)
         print(self.kumi)
     
     #def distance(x0,x1,x2,y0,y1,y2):
@@ -435,9 +435,9 @@ class Gui:
         btn = Button(root, text='sticky note:', width=10,
              height=5, bd='10', command= lambda: self.addNote())
         btn.place(x=0, y=300)
-        self.btn = Button(root, text="Erase", width=5,
+        self.erase_btn = Button(root, text="Erase", width=5,
             height=2, bd='10', command= lambda: self.erase())
-        self.btn.place(x=65, y=0)
+        self.erase_btn.place(x=65, y=0)
         #self.addLineFromClient()
         btn = Button(root, text='undo', width=10,
              height=5, bd='10', command= lambda: self.undo())
