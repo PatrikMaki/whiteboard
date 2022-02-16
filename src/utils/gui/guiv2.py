@@ -221,6 +221,7 @@ class Gui:
         txt = self.texts[e["id"]]
         if txt:
             print("it works")
+            txt.delete('1.0', 'end-1c')
             txt.insert('1.0', e["note"])
         else:
             print("not work")
