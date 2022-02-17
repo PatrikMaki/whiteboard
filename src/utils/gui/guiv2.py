@@ -24,6 +24,7 @@ class Gui:
     lastx=1
     lasty=1
     kumi=False
+    comm = False
     def set_client(self,client):
         self.client = client
 
@@ -147,6 +148,7 @@ class Gui:
             'image': rec_e["image"]
         }
         self.events.append(e)
+
     def updateNote(self, event):
             #self.texts.append(txt)
             #note = self.canvas.itemcget(id).get("1.0",'end-1c')
@@ -386,6 +388,151 @@ class Gui:
         ss.save("./../whiteboard.jpeg")
 
 
+    def addCommentToggle(self):
+        # TODO: fix interaction with erase button
+        if self.comm:
+            self.comm = False
+            self.canvas.bind("<B1-Motion>", self.addLine)
+            self.canvas.bind("<Button-1>", self.savePosn)
+            print("binded addline")
+
+        else:
+            self.comm = True
+            self.canvas.bind("<Button-1>", self.addCommentbox)
+            self.canvas.bind("<B1-Motion>", self.nothing)
+            print("binded to addcomment, unbound motion")
+
+
+    def addCommentbox(self, event):
+        # TODO add globals for widths and heights etc..
+        x0 = event.x
+        y0 = event.y
+        stop = False
+
+        for a in self.events:
+            if a["type"] == "image":
+                x1 = a["x1"]
+                x2 = a["x2"]
+                y1 = a["y1"]
+                y2 = a["y2"]
+
+                dist = self.dist(x1, y1, x2, y2, x0, y0)
+                if dist < 30:
+                    print("image found")
+
+                    c_x0 = x2
+                    c_y0 = y2
+                    for c in self.events:
+                        if c["type"] == "commentbox":
+                            c_x1 = c["x1"]
+                            c_x2 = c["x2"]
+                            c_y1 = c["y1"]
+                            c_y2 = c["y2"]
+
+                            dist = self.dist(c_x1, c_y1, c_x2, c_y2, c_x0, c_y0)
+                            print("dist", dist)
+                            # dist should be 0 if there is a commentbox already
+                            if dist < 10:
+                                print("another commentbox found")
+                                stop = True
+                                break
+                    if stop:
+                        break
+                    comment = ""
+                    id = str(uuid.uuid4())
+                    # width and height are different units in frames and other boxes...
+                    frame = Frame(self.canvas, relief=RIDGE, width=93, height=115, bg="gray")
+                    frame.place(x=x2, y=y2)
+                    txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
+                    label = Label(frame, text="By you")
+                    label.place(x=0, y=0)
+                    txt.place(x=0, y=20)
+
+                    txt.insert('1.0', comment)
+                    self.texts[id] = txt
+
+                    e = {
+                        'id': id,
+                        'time': time.time(),
+                        'type': 'commentbox',
+                        'x1': x2,
+                        'y1': y2,
+                        'x2': x1 + frame.winfo_width(),
+                        'y2': y1 + frame.winfo_height(),
+                        'comment': ""
+                    }
+                    # print(e)
+                    self.events.append(e)
+                    self.client.send(e)
+                    txt.bind('<Return>', self.updateComment)
+                    break
+
+
+    # used for binding a button to nothing
+    def nothing(self, event):
+        pass
+
+
+    def updateComment(self, event):
+        txt = event.widget
+        e = {
+            'id': str(txt).split(".")[3],
+            'time': time.time(),
+            'type': 'updateComment',
+            'x1': event.x,
+            'y1': event.y,
+            'comment': txt.get("1.0", 'end-1c')
+        }
+        self.events.append(e)
+        self.client.send(e)
+        #print("sent stufff", e)
+
+
+    def addCommentboxFromClient(self, rec_e: dict):
+        id = rec_e["id"]
+
+        frame = Frame(self.canvas, relief=RIDGE, width=93, height=115, bg="gray")
+        frame.place(x=rec_e["x1"], y=rec_e["y1"])
+        txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
+        address = str(rec_e["address"][1])
+        label = Label(frame, text="By " + address)
+
+        label.place(x=0, y=0)
+        txt.place(x=0, y=20)
+
+        txt.insert('1.0', rec_e["comment"])
+
+        self.texts[id] = txt
+        e = {
+            'id': id,
+            'time': time.time(),
+            'type': 'commentbox',
+            'x1': rec_e["x1"],
+            'y1': rec_e["y1"],
+            'x2': rec_e["x2"],
+            'y2': rec_e["y2"],
+            'comment': rec_e["comment"]
+        }
+        self.events.append(e)
+        txt.bind('<Return>', self.updateComment)
+
+
+    def updateCommentFromClient(self, e):
+        #print(e)
+        #print("update", self.texts[e["id"]])
+
+        txt = self.texts[e["id"]]
+        if txt:
+            #print("it works")
+            txt.delete('1.0', 'end-1c')
+            txt.insert('1.0', e["comment"])
+        else:
+            #print("not work")
+            pass
+
+
+
+
     def run(self):
         #TODO: make possible to work over internet.
         #TODO: create session!
@@ -451,5 +598,8 @@ class Gui:
         self.btn = Button(root, text="save JPEG", width=10,
                           height=2, bd='10', command=lambda: self.save_jpeg())
         self.btn.place(x=0, y=465)
+        btn = Button(root, text="add comment", width=10,
+                          height=2, bd='10', command=lambda: self.addCommentToggle())
+        btn.place(x=0, y=525)
         
         root.mainloop()
