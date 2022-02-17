@@ -2,6 +2,7 @@ import socket
 import json
 
 class Client:
+
     HOST = '127.0.0.1'  # The server's hostname or IP address
     PORT = 65432        # The port used by the server
     #data: bytes
@@ -56,6 +57,10 @@ class Client:
                 gui.deleteFromClient(e)
             elif e["type"]=="updateNote":
                 gui.updateNoteFromClient(e)
+            elif e["type"]=="commentbox":
+                gui.addCommentboxFromClient(e)
+            elif e["type"]=="updateComment":
+                gui.updateCommentFromClient(e)
                 
         
 
