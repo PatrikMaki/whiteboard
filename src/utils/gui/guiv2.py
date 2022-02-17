@@ -235,11 +235,13 @@ class Gui:
     def erase(self):
         print("test")
         if self.kumi:
-            self.kumi=False
+            self.kumi = False
             self.canvas.bind("<B1-Motion>", self.addLine)
             self.erase_btn.config(relief=RAISED)
         else:
-            self.kumi=True
+            self.kumi = True
+            self.comm = True
+            self.addCommentToggle()
             #self.canvas.bind("<Button-1>", self.savePosn)
             self.canvas.bind("<B1-Motion>", self.delete)
             self.erase_btn.config(relief=SUNKEN)
@@ -362,7 +364,7 @@ class Gui:
         #reverse the previous action
 
 
-    def save_png(self):
+    def savePng(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
         x = self.canvas.winfo_rootx()
@@ -375,7 +377,7 @@ class Gui:
         ss.save("./../whiteboard.png")
 
 
-    def save_jpeg(self):
+    def saveJpeg(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
         x = self.canvas.winfo_rootx()
@@ -394,12 +396,16 @@ class Gui:
             self.comm = False
             self.canvas.bind("<B1-Motion>", self.addLine)
             self.canvas.bind("<Button-1>", self.savePosn)
+            self.comment_btn.config(relief=RAISED)
             print("binded addline")
 
         else:
             self.comm = True
+            self.kumi = True
+            self.erase()
             self.canvas.bind("<Button-1>", self.addCommentbox)
             self.canvas.bind("<B1-Motion>", self.nothing)
+            self.comment_btn.config(relief=SUNKEN)
             print("binded to addcomment, unbound motion")
 
 
@@ -592,14 +598,14 @@ class Gui:
         #self.btn.place(x=65, y=0)
         # save PNG
         self.btn = Button(root, text="save PNG", width=10,
-                          height=2, bd='10', command=lambda: self.save_png())
+                          height=2, bd='10', command=lambda: self.savePng())
         self.btn.place(x=0, y=400)
         # save JPEG
         self.btn = Button(root, text="save JPEG", width=10,
-                          height=2, bd='10', command=lambda: self.save_jpeg())
+                          height=2, bd='10', command=lambda: self.saveJpeg())
         self.btn.place(x=0, y=465)
-        btn = Button(root, text="add comment", width=10,
+        self.comment_btn = Button(root, text="add comment", width=10,
                           height=2, bd='10', command=lambda: self.addCommentToggle())
-        btn.place(x=0, y=525)
+        self.comment_btn.place(x=0, y=525)
         
         root.mainloop()
