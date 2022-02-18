@@ -27,6 +27,10 @@ class Gui:
     lasty=1
     kumi=False
     comm = False
+    comment_frame_height = 115
+    comment_frame_width = 93
+
+
     def set_client(self,client):
         self.client = client
 
@@ -133,7 +137,7 @@ class Gui:
         }
         self.events.append(e)
         self.client.send(e)
-        
+
 
     def addPhotoFromClient(self,rec_e:dict):
         #
@@ -415,6 +419,11 @@ class Gui:
             print("binded to addcomment, unbound motion")
 
 
+    # used for binding a button to nothing
+    def nothing(self, event):
+        pass
+
+
     def addCommentbox(self, event):
         # TODO add globals for widths and heights etc..
         x0 = event.x
@@ -442,10 +451,11 @@ class Gui:
                             c_y2 = c["y2"]
 
                             dist = self.dist(c_x1, c_y1, c_x2, c_y2, c_x0, c_y0)
-                            print("dist", dist)
                             # dist should be 0 if there is a commentbox already
                             if dist < 10:
                                 print("another commentbox found")
+                                print(c_x1, c_y1, c_x2, c_y2)
+                                self.addChildComment(c_x1)
                                 stop = True
                                 break
                     if stop:
@@ -453,7 +463,7 @@ class Gui:
                     comment = ""
                     id = str(uuid.uuid4())
                     # width and height are different units in frames and other boxes...
-                    frame = Frame(self.canvas, relief=RIDGE, width=93, height=115, bg="gray")
+                    frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height, bg="gray")
                     frame.place(x=x2, y=y2)
                     txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
                     label = Label(frame, text="By you")
@@ -469,20 +479,55 @@ class Gui:
                         'type': 'commentbox',
                         'x1': x2,
                         'y1': y2,
-                        'x2': x1 + frame.winfo_width(),
-                        'y2': y1 + frame.winfo_height(),
+                        'x2': x2 + self.comment_frame_width,
+                        'y2': y2 + self.comment_frame_height,
                         'comment': ""
                     }
-                    # print(e)
+                    print(e)
                     self.events.append(e)
                     self.client.send(e)
                     txt.bind('<Return>', self.updateComment)
                     break
 
 
-    # used for binding a button to nothing
-    def nothing(self, event):
-        pass
+    def addChildComment(self, x0):
+        comments = []
+        for c in self.events:
+            if c["type"] == "commentbox":
+                if c["x1"] == x0:
+                    comments.append(c)
+        y0 = 0
+        for c in comments:
+            if c["y2"] > y0:
+                y0 = c["y2"]
+        
+        comment = ""
+        id = str(uuid.uuid4())
+        # width and height are different units in frames and other boxes...
+        frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height, bg="gray")
+        frame.place(x=x0, y=y0)
+        txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
+        label = Label(frame, text="By you")
+        label.place(x=0, y=0)
+        txt.place(x=0, y=20)
+
+        txt.insert('1.0', comment)
+        self.texts[id] = txt
+
+        e = {
+            'id': id,
+            'time': time.time(),
+            'type': 'commentbox',
+            'x1': x0,
+            'y1': y0,
+            'x2': x0 + self.comment_frame_width,
+            'y2': y0 + self.comment_frame_height,
+            'comment': ""
+        }
+        # print(e)
+        self.events.append(e)
+        self.client.send(e)
+        txt.bind('<Return>', self.updateComment)
 
 
     def updateComment(self, event):
@@ -503,7 +548,7 @@ class Gui:
     def addCommentboxFromClient(self, rec_e: dict):
         id = rec_e["id"]
 
-        frame = Frame(self.canvas, relief=RIDGE, width=93, height=115, bg="gray")
+        frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height, bg="gray")
         frame.place(x=rec_e["x1"], y=rec_e["y1"])
         txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
         address = str(rec_e["address"][1])
