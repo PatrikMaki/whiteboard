@@ -13,45 +13,73 @@ from pathlib import Path
 #the session. The session would end when the host leaves or ends the session.
 class Application:
      events = []
-     def run(self):
-          #TODO: make possible to work over internet.
-          #TODO: create session!
-          #TODO: invite session
-          #TODO: request to join session
-          #TODO: join session
-          #TODO: create gui using frames!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          root = Tk()
-          root.columnconfigure(0, weight=1)
-          root.rowconfigure(0, weight=1)
+     def addSession(self):
+         print("ii")
+         rows = 9
+         columns = 5
+         buttons = [[Button() for j in range(columns)] for i in range(rows)]
+         for i in range(0, rows):
+            for j in range(0, columns):
+               buttons[i][j] = Button(self.frame_buttons, text=("%d,%d" % (i+1, j+1)))
+               buttons[i][j].grid(row=i, column=j, sticky='news')
 
-          #clientv1.connect()#TODO: move to main client_main
+         # Update buttons frames idle tasks to let tkinter calculate buttons sizes
+         self.frame_buttons.update_idletasks()
 
-          self.canvas = Canvas(root, background="white")
-          self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
-          
-          #self.canvas.bind("<Button-1>", self.savePosn)
-          #self.canvas.bind("<B1-Motion>", self.addLine)
+         # Resize the canvas frame to show exactly 5-by-5 buttons and the scrollbar
+         first5columns_width = sum([buttons[0][j].winfo_width() for j in range(0, 5)])
+         first5rows_height = sum([buttons[i][0].winfo_height() for i in range(0, 5)])
+         self.frame_canvas.config(width=first5columns_width + self.vsb.winfo_width(),
+                           height=first5rows_height)
 
-          #print(self.kumi)
+         # Set the canvas scrolling region
+         self.canvas.config(scrollregion=self.canvas.bbox("all"))
          
-          '''
-          id = canvas.create_rectangle((10, 10, 30, 30), fill="red")
-          canvas.tag_bind(id, "<Button-1>", lambda x: setColor("red"))
-          id = canvas.create_rectangle((10, 35, 30, 55), fill="green")
-          canvas.tag_bind(id, "<Button-1>", lambda x: setColor("green"))
-          id = canvas.create_rectangle((10, 60, 30, 80), fill="blue")
-          canvas.tag_bind(id, "<Button-1>", lambda x: setColor("blue"))
-          '''
-          #id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
-          #self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
+         
+         
+     def run(self):
+         #TODO: make possible to work over internet.
+         #TODO: create session!
+         #TODO: invite session
+         #TODO: request to join session
+         #TODO: join session
+         #TODO: create gui using frames!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         root = Tk()
+         root.columnconfigure(0, weight=1)
+         root.rowconfigure(0, weight=1)
 
-          btn = Button(root, text='QUIT!', width=5,
-             height=2, bd='10', command=root.destroy)
-          btn.place(x=0, y=0)
-          btn = Button(root, text='QUIT!', width=5,
-             height=2, bd='10', command=root.destroy)
-          btn.place(x=0, y=55)
+         #clientv1.connect()#TODO: move to main client_main
+         self.frame_main = Frame(root, bg="gray")
+         self.frame_main.grid(sticky='news')
+         self.btn = Button(self.frame_main, text='QUIT!', width=5,
+            height=2, bd='10', command=root.destroy)
+         self.btn.grid(row=0, column=0, pady=(5, 0), sticky='nw')
+         self.btn = Button(self.frame_main, text='Create session', width=5,
+            height=2, bd='10', command=lambda: self.addSession())
+         self.btn.grid(row=1, column=0, pady=(5, 0), sticky='nw')
+         
+         # Create a frame for the canvas with non-zero row&column weights
+         self.frame_canvas = Frame(self.frame_main)
+         self.frame_canvas.grid(row=2, column=0, pady=(5, 0), sticky='nw')
+         self.frame_canvas.grid_rowconfigure(0, weight=1)
+         self.frame_canvas.grid_columnconfigure(0, weight=1)
+         # Set grid_propagate to False to allow 5-by-5 buttons resizing later
+         self.frame_canvas.grid_propagate(False)
 
-          root.mainloop()
+         # Add a canvas in that frame
+         self.canvas = Canvas(self.frame_canvas, bg="yellow")
+         self.canvas.grid(row=0, column=0, sticky="news")
+
+         # Link a scrollbar to the canvas
+         self.vsb = Scrollbar(self.frame_canvas, orient="vertical", command=self.canvas.yview)
+         self.vsb.grid(row=0, column=1, sticky='ns')
+         self.canvas.configure(yscrollcommand=self.vsb.set)
+         # Create a frame to contain the buttons
+         self.frame_buttons = Frame(self.canvas, bg="blue")
+         self.canvas.create_window((0, 0), window=self.frame_buttons, anchor='nw')
+         # Add 9-by-5 buttons to the frame
+         
+         #######
+         root.mainloop()
 A = Application()
 A.run()
