@@ -25,6 +25,7 @@ class Application:
             #
             #new
             #print("ii")
+            '''
             rows = 9
             columns = 5
             buttons = [[Button() for j in range(columns)] for i in range(rows)]
@@ -32,6 +33,7 @@ class Application:
                for j in range(0, columns):
                   buttons[i][j] = Button(self.frame_buttons, text=("%d,%d" % (i+1, j+1)))
                   buttons[i][j].grid(row=i, column=j, sticky='news')
+            
 
             # Update buttons frames idle tasks to let tkinter calculate buttons sizes
             self.frame_buttons.update_idletasks()
@@ -41,11 +43,22 @@ class Application:
             first5rows_height = sum([buttons[i][0].winfo_height() for i in range(0, 5)])
             self.frame_canvas.config(width=first5columns_width + self.vsb.winfo_width(),
                               height=first5rows_height)
+            '''
 
             # Set the canvas scrolling region
             self.canvas.config(scrollregion=self.canvas.bbox("all"))
             
        def inviteToSession(self):
+              id = 1
+              e={
+               'id': id,
+               'time': time.time(),
+               'type': 'invite',
+               'ip': "1.10.10101"  #
+              }
+               
+              self.events.append(e)
+              self.client.send(e)
               print("invite")
               
        def requestToJoin(self):
