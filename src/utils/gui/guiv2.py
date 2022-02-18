@@ -85,8 +85,17 @@ class Gui:
         return imgByteArr
 
     def chooseImage(self):
-        #filetypes = [("jpeg files","*.jpg"),("all files","*.*"),("png files","*.png"),("all files","*.*")]
-        self.imagename =  filedialog.askopenfilename(initialdir = "/",title = "Select file")
+        filetypes=[
+                    ("image", ".jpeg"),
+                    ("image", ".png"),
+                    ("image", ".jpg"),
+                    ("image", ".bmp"),
+                    ("image", ".dds"),
+                    ("image", ".dib"),
+                    ("image", ".gif"),
+                    ("image", ".ppm"),
+                ]
+        self.imagename =  filedialog.askopenfilename(initialdir = "/",title = "Select file", filetypes=filetypes)
     
     def addPhoto(self):
 
