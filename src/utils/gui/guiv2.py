@@ -153,7 +153,9 @@ class Gui:
         #global img
         #global images
         #print("clientphotoinput")
-        img=PhotoImage(data=rec_e["image"].encode("utf8"))
+        #img=PhotoImage(data=rec_e["image"].encode("utf8"))
+        loaded_img = Image.open(io.BytesIO(base64.b64decode(rec_e["image"].encode("utf8"))))
+        img=ImageTk.PhotoImage(loaded_img)
         id = self.canvas.create_image(rec_e["x1"], rec_e["y1"],anchor=NW, image=img)
         self.images.append(img)
         e={
