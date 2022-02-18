@@ -14,6 +14,11 @@ from pathlib import Path
 class Application:
      events = []
      def addSession(self):
+	 #new
+	 #add a new dict as a session
+	 #add the dict to events
+	 #
+	 #new
          print("ii")
          rows = 9
          columns = 5
