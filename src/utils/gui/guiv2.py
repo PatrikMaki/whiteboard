@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import ImageTk,Image
 import time
 import base64
@@ -17,6 +18,7 @@ class Gui:
     #lastx, lasty = 0,0
     #img: Image
     #id=1
+    imagename = "photo.gif"
     events = []
     images = []
     texts = {}
@@ -78,7 +80,11 @@ class Gui:
         imgByteArr = imgByteArr.getvalue()
         return imgByteArr
 
-    def addPhoto(self,photo):
+    def chooseImage(self):
+        #filetypes = [("jpeg files","*.jpg"),("all files","*.*"),("png files","*.png"),("all files","*.*")]
+        self.imagename =  filedialog.askopenfilename(initialdir = "/",title = "Select file")
+    
+    def addPhoto(self):
 
         #global img
         #global images
@@ -98,8 +104,8 @@ class Gui:
        
         #
         #
-
-        image = Image.open(photo)
+        
+        image = Image.open(self.imagename)
         imagestring = base64.b64encode(self.image_to_byte_array(image)).decode('utf-8')
         img = ImageTk.PhotoImage(image)
         #img=PhotoImage(data=image_data_base64_encoded_string)
@@ -576,13 +582,11 @@ class Gui:
         btn = Button(root, text='print', width=5,
              height=2, bd='10', command= lambda: self.printLine())
         btn.place(x=0, y=55)
-        btn = Button(root, text='show gif', width=10,
-             height=5, bd='10', command= lambda: self.addPhoto("photo.gif"))
+        btn = Button(root, text='show image', width=10,
+             height=5, bd='10', command= lambda: self.addPhoto())
         btn.place(x=0, y=110)
-        txt = Text(root, width=10, height=5, bd='10')
-        txt.place(x=105, y=210)
-        btn = Button(root, text='show gif:', width=10,
-             height=5, bd='10', command= lambda: self.addPhoto(txt.get("1.0",'end-1c')))
+        btn = Button(root, text='choose image', width=10,
+             height=5, bd='10', command= lambda: self.chooseImage())
         btn.place(x=0, y=210)
         #txt2 = Text(root, width=10, height=5, bd='10')
         #txt.place(x=105, y=300)
