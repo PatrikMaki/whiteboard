@@ -108,7 +108,6 @@ class Server:
 
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
         context.load_cert_chain(keyfile="./cert/key.pem", certfile="./cert/cert.pem")
-        s = context.wrap_socket(s, server_side=True)
 
         s.bind((host, port))
         print("socket binded to port", port)
@@ -122,6 +121,7 @@ class Server:
   
             # establish connection with client
             c, addr = s.accept()
+            c = context.wrap_socket(c, server_side=True)
   
             # lock acquired by client
             self.print_lock.acquire()
