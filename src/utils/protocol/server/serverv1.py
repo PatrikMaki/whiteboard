@@ -1,5 +1,6 @@
 # import socket programming library
 import socket
+import ssl
 import json
 import time
 # import thread module
@@ -104,6 +105,11 @@ class Server:
         #port = 12345
         port = self.PORT
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
+        context.load_cert_chain(keyfile="./cert/key.pem", certfile="./cert/cert.pem")
+        s = context.wrap_socket(s, server_side=True)
+
         s.bind((host, port))
         print("socket binded to port", port)
   
