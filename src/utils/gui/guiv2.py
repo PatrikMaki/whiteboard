@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-from PIL import ImageTk,Image
+from PIL import ImageTk, Image
 import time
 import base64
 import os
@@ -11,43 +11,44 @@ import uuid
 from pathlib import Path
 from pyscreenshot import grab
 
-#a="global"
+
+# a="global"
 class Gui:
-    #b="class variable in self"
-    #class Gui
-    #lastx, lasty = 0,0
-    #img: Image
-    #id=1
+    # b="class variable in self"
+    # class Gui
+    # lastx, lasty = 0,0
+    # img: Image
+    # id=1
     imagename = "photo.gif"
     events = []
     images = []
     texts = {}
-    #objects = []
-    lastx=1
-    lasty=1
-    kumi=False
+    # objects = []
+    lastx = 1
+    lasty = 1
+    kumi = False
     comm = False
     comment_frame_height = 115
     comment_frame_width = 93
 
-
-    def set_client(self,client):
+    def set_client(self, client):
         self.client = client
 
-    def savePosn(self,event):
-        #global lastx, lasty
+    def savePosn(self, event):
+        # global lastx, lasty
         self.lastx, self.lasty = event.x, event.y
 
     color = "black"
-    def setColor(self,newcolor):
-        #global color
+
+    def setColor(self, newcolor):
+        # global color
         self.color = newcolor
 
-    def addLine(self,event):
-        #global lastx, lasty
+    def addLine(self, event):
+        # global lastx, lasty
         id = self.canvas.create_line((self.lastx, self.lasty, event.x, event.y), fill=self.color)
-        #print("first print",id,lastx, lasty, event.x, event.y)
-        e={
+        # print("first print",id,lastx, lasty, event.x, event.y)
+        e = {
             'id': id,
             'time': time.time(),
             'type': 'line',
@@ -56,17 +57,17 @@ class Gui:
             'x2': event.x,
             'y2': event.y
         }
-        #global events
+        # global events
         self.events.append(e)
         self.lastx, self.lasty = event.x, event.y
-        self.client.send(e) #TODO: call from client_main DONE
-        #print("print line",id,lastx, lasty, event.x, event.y)
-    
-    def addLineFromClient(self,rec_e:dict):
-        #print("guiv2 addlinefromclient")
-        #e: dict = self.client.receive()
+        self.client.send(e)  # TODO: call from client_main DONE
+        # print("print line",id,lastx, lasty, event.x, event.y)
+
+    def addLineFromClient(self, rec_e: dict):
+        # print("guiv2 addlinefromclient")
+        # e: dict = self.client.receive()
         id = self.canvas.create_line((rec_e["x1"], rec_e["y1"], rec_e["x2"], rec_e["y2"]), fill="blue")
-        e={
+        e = {
             'id': id,
             'time': time.time(),
             'type': 'line',
@@ -76,65 +77,55 @@ class Gui:
             'y2': rec_e["y2"]
         }
         self.events.append(e)
-    
-    #addphoto
-    def image_to_byte_array(self, image:Image):
+
+    # addphoto
+    def image_to_byte_array(self, image: Image):
         imgByteArr = io.BytesIO()
         image.save(imgByteArr, format=image.format)
         imgByteArr = imgByteArr.getvalue()
         return imgByteArr
 
     def chooseImage(self):
-        filetypes=[
-                    ("image", ".jpeg"),
-                    ("image", ".png"),
-                    ("image", ".jpg"),
-                    ("image", ".bmp"),
-                    ("image", ".dds"),
-                    ("image", ".dib"),
-                    ("image", ".gif"),
-                    ("image", ".ppm"),
-                ]
-        self.imagename =  filedialog.askopenfilename(initialdir = "/",title = "Select file", filetypes=filetypes)
-    
+        # filetypes = [("jpeg files","*.jpg"),("all files","*.*"),("png files","*.png"),("all files","*.*")]
+        self.imagename = filedialog.askopenfilename(initialdir="/", title="Select file")
+
     def addPhoto(self):
 
-        #global img
-        #global images
+        # global img
+        # global images
         '''
         generate the path to the file relative to your python script:
         script_location = Path(__file__).absolute().parent
         file_location = script_location / 'file.yaml'
         file = file_location.open()
         '''
-        #print(self.lastx)
-        #with open(photo, "rb") as imag:
-        
-            #image_data_base64_encoded_string = base64.b64encode(imag.read()) 
-        #imagestring = image_data_base64_encoded_string.decode('utf-8')
-        #print()
+        # print(self.lastx)
+        # with open(photo, "rb") as imag:
 
-       
+        # image_data_base64_encoded_string = base64.b64encode(imag.read())
+        # imagestring = image_data_base64_encoded_string.decode('utf-8')
+        # print()
+
         #
         #
-        
+
         image = Image.open(self.imagename)
         imagestring = base64.b64encode(self.image_to_byte_array(image)).decode('utf-8')
         img = ImageTk.PhotoImage(image)
-        #img=PhotoImage(data=image_data_base64_encoded_string)
-        #x2 = int() + self.lastx
-        #y2 = int(img.height) + self.lasty
+        # img=PhotoImage(data=image_data_base64_encoded_string)
+        # x2 = int() + self.lastx
+        # y2 = int(img.height) + self.lasty
         print(img.height)
-        x2=img.height() + self.lastx
-        y2=img.width() + self.lasty
-        #print("x2",x2)
-        #print("Y2",y2)
-        id = self.canvas.create_image(self.lastx, self.lasty,anchor=NW, image=img)
-        #self.canvas.image= self.img
+        x2 = img.height() + self.lastx
+        y2 = img.width() + self.lasty
+        # print("x2",x2)
+        # print("Y2",y2)
+        id = self.canvas.create_image(self.lastx, self.lasty, anchor=NW, image=img)
+        # self.canvas.image= self.img
         self.images.append(img)
-        #imagestring = base64.b64encode(image.read())
-        #imagestring = imagestring.decode('utf-8')
-        e={
+        # imagestring = base64.b64encode(image.read())
+        # imagestring = imagestring.decode('utf-8')
+        e = {
             'id': id,
             'time': time.time(),
             'type': 'image',
@@ -147,18 +138,15 @@ class Gui:
         self.events.append(e)
         self.client.send(e)
 
-
-    def addPhotoFromClient(self,rec_e:dict):
+    def addPhotoFromClient(self, rec_e: dict):
         #
-        #global img
-        #global images
-        #print("clientphotoinput")
-        #img=PhotoImage(data=rec_e["image"].encode("utf8"))
-        loaded_img = Image.open(io.BytesIO(base64.b64decode(rec_e["image"].encode("utf8"))))
-        img=ImageTk.PhotoImage(loaded_img)
-        id = self.canvas.create_image(rec_e["x1"], rec_e["y1"],anchor=NW, image=img)
+        # global img
+        # global images
+        # print("clientphotoinput")
+        img = PhotoImage(data=rec_e["image"].encode("utf8"))
+        id = self.canvas.create_image(rec_e["x1"], rec_e["y1"], anchor=NW, image=img)
         self.images.append(img)
-        e={
+        e = {
             'id': id,
             'time': time.time(),
             'type': 'image',
@@ -171,75 +159,86 @@ class Gui:
         self.events.append(e)
 
     def updateNote(self, event):
-            #self.texts.append(txt)
-            #note = self.canvas.itemcget(id).get("1.0",'end-1c')
-            print(event)
-            txt = event.widget
-            e={
-                'id': str(txt)[1:],
-                'time': time.time(),
-                'type': 'updateNote',
-                'x1': self.lastx,
-                'y1': self.lasty,
-                'note': txt.get("1.0",'end-1c')
-            }
-            self.events.append(e)
-            self.client.send(e)
-            print("sent stufff",e)
-    
+        # self.texts.append(txt)
+        # note = self.canvas.itemcget(id).get("1.0",'end-1c')
+        print(event)
+        txt = event.widget
+        e = {
+            'id': str(txt).split(".")[3],
+            'time': time.time(),
+            'type': 'updateNote',
+            'x1': self.lastx,
+            'y1': self.lasty,
+            'note': txt.get("1.0", 'end-1c')
+        }
+        self.events.append(e)
+        self.client.send(e)
+        print("sent stufff", e)
+
     def addNote(self):
-        #TODO add id and make text changing viewable from other clients
-        
-        
-        
-        
+        # TODO add id and make text changing viewable from other clients
         note = ""
         id = str(uuid.uuid4())
-        txt=Text(width=10, height=5, bd='10',bg="gray",name=id)
-        
-        #id = self.canvas.create_text(self.lastx, self.lasty,text=note)
-        #self.canvas.itemcget(id).bind('<Enter>',updateNote)
-        txt.place(x=self.lastx, y=self.lasty)
-        #txt.tag_set("id",id)
-        #self.canvas.itemcget(id).insert('1.0',note)
+        frame_id = str(uuid.uuid4())
+        frame = Frame(self.canvas, relief=RIDGE, width=110, height=150, bg="gray", name=frame_id)
+        frame.place(x=self.lastx, y=self.lasty)
+        txt = Text(frame, width=10, height=5, bd='10', bg="gray", name=id)
+        closebutton = Button(frame, width=1, height=1, bd="0", text="X", command=lambda: self.deleteNote(id, frame_id))
+        closebutton.grid(row=0, column=0, sticky="ne")
+        # id = self.canvas.create_text(self.lastx, self.lasty,text=note)
+        # self.canvas.itemcget(id).bind('<Enter>',updateNote)
+        txt.grid(row=1, column=0)
+        # txt.tag_set("id",id)
+        # self.canvas.itemcget(id).insert('1.0',note)
         txt.insert('1.0', note)
-        self.texts[id]=txt
-        #note = self.canvas.itemcget(id).get("1.0",'end-1c')
-        e={
+        self.texts[id] = txt
+        # note = self.canvas.itemcget(id).get("1.0",'end-1c')
+        e = {
             'id': id,
             'time': time.time(),
             'type': 'note',
             'x1': self.lastx,
             'y1': self.lasty,
-            'note': ""
+            'note': "",
+            'frame_id': frame_id
         }
+        #print(e)
         self.events.append(e)
         self.client.send(e)
-        txt.bind('<Return>',self.updateNote)
+        txt.bind('<Return>', self.updateNote)
 
-    def addNoteFromClient(self,rec_e:dict):
+    def addNoteFromClient(self, rec_e: dict):
         id = rec_e["id"]
-        txt=Text(width=10, height=5, bd='10',background="gray",name=id)
-        txt.place(x=rec_e["x1"], y=rec_e["y1"])
+        frame_id = rec_e["frame_id"]
+        frame = Frame(self.canvas, relief=RIDGE, width=110, height=150, bg="gray", name=frame_id)
+        frame.place(x=rec_e["x1"], y=rec_e["y1"])
+        txt = Text(frame, width=10, height=5, bd='10', bg="gray", name=id)
         txt.insert('1.0', rec_e["note"])
-        
-        #self.texts.append(txt)
-        #id = self.canvas.create_text(x=rec_e["x1"],y=rec_e["y1"],width=15, height=5, bd='10')
-        #self.canvas.itemcget(id).insert('1.0',rec_e["note"])
-        self.texts[id]=txt
-        e={
+        closebutton = Button(frame, width=1, height=1, bd="0", text="X", command=lambda: self.deleteNote(id, frame_id))
+        closebutton.grid(row=0, column=0, sticky="ne")
+
+        # id = self.canvas.create_text(self.lastx, self.lasty,text=note)
+        # self.canvas.itemcget(id).bind('<Enter>',updateNote)
+        txt.grid(row=1, column=0)
+
+        # self.texts.append(txt)
+        # id = self.canvas.create_text(x=rec_e["x1"],y=rec_e["y1"],width=15, height=5, bd='10')
+        # self.canvas.itemcget(id).insert('1.0',rec_e["note"])
+        self.texts[id] = txt
+        e = {
             'id': id,
             'time': time.time(),
             'type': 'note',
             'x1': rec_e["x1"],
             'y1': rec_e["y1"],
-            'note': rec_e["note"]
+            'note': rec_e["note"],
+            'frame_id': frame_id
         }
         self.events.append(e)
-        txt.bind('<Return>',self.updateNote)
-        
-    def updateNoteFromClient(self,e):
-        #print("updfate",self.texts[e["id"]])
+        txt.bind('<Return>', self.updateNote)
+
+    def updateNoteFromClient(self, e):
+        # print("updfate",self.texts[e["id"]])
         print(e["id"])
         txt = self.texts[e["id"]]
         if txt:
@@ -248,11 +247,47 @@ class Gui:
             txt.insert('1.0', e["note"])
         else:
             print("not work")
-        
+
+    # coming from this client
+    def deleteNote(self, delete_id, delete_frame_id):
+        self.deleteNoteFromServer(delete_id, delete_frame_id)
+        print("deleting", delete_id)
+        for i, note in enumerate(self.events):
+            if note["id"] == delete_id and note["type"] == "note":
+                print(note)
+                self.canvas.delete(note["id"])
+                del self.events[i]
+        delete_frame = self.canvas.nametowidget(delete_frame_id)
+        delete_frame.grid_forget()
+        delete_frame.destroy()
+
+    # coming from this client
+    def deleteNoteFromServer(self, delete_id, delete_frame_id):
+        e = {
+            'id': delete_id,
+            'frame_id': delete_frame_id,
+            'type': 'deleteNote'
+        }
+        self.client.send(e)
+
+    # coming from another client -> server
+    def deleteNoteComingFromServer(self, e):
+        delete_id = e["id"]
+        delete_frame_id = e["frame_id"]
+        print("deleting", delete_id)
+        for i, note in enumerate(self.events):
+            if note["id"] == delete_id and note["type"] == "note":
+                self.canvas.delete(note["id"])
+                del self.events[i]
+        delete_frame = self.canvas.nametowidget(delete_frame_id)
+        delete_frame.grid_forget()
+        delete_frame.destroy()
+
 
     def printLine(self):
         for event in self.events:
             print(event)
+
     def erase(self):
         print("test")
         if self.kumi:
@@ -263,22 +298,22 @@ class Gui:
             self.kumi = True
             self.comm = True
             self.addCommentToggle()
-            #self.canvas.bind("<Button-1>", self.savePosn)
+            # self.canvas.bind("<Button-1>", self.savePosn)
             self.canvas.bind("<B1-Motion>", self.delete)
             self.erase_btn.config(relief=SUNKEN)
         print(self.kumi)
-    
-    #def distance(x0,x1,x2,y0,y1,y2):
-        #return abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1))/math.sqrt((x2-x1)**2 + (y2 -y1)**2)
-    def dist(self, x1, y1, x2, y2, x3, y3): # x3,y3 is the point
-        px = x2-x1
-        py = y2-y1
 
-        norm = px*px + py*py
-        if norm==0:
+    # def distance(x0,x1,x2,y0,y1,y2):
+    # return abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1))/math.sqrt((x2-x1)**2 + (y2 -y1)**2)
+    def dist(self, x1, y1, x2, y2, x3, y3):  # x3,y3 is the point
+        px = x2 - x1
+        py = y2 - y1
+
+        norm = px * px + py * py
+        if norm == 0:
             norm = 1
 
-        u =  ((x3 - x1) * px + (y3 - y1) * py) / float(norm)
+        u = ((x3 - x1) * px + (y3 - y1) * py) / float(norm)
 
         if u > 1:
             u = 1
@@ -297,65 +332,66 @@ class Gui:
         # can just return the squared distance instead
         # (i.e. remove the sqrt) to gain a little performance
 
-        dist = (dx*dx + dy*dy)**.5
+        dist = (dx * dx + dy * dy) ** .5
 
         return dist
 
-    def FindPoint(self,x1, y1, x2, y2, x, y):
-        #print(x1,y1,x2,y2,x,y)
+    def FindPoint(self, x1, y1, x2, y2, x, y):
+        # print(x1,y1,x2,y2,x,y)
         if (x > x1 and x < x2 and
-            y > y1 and y < y2) :
+                y > y1 and y < y2):
             return True
-        else :
+        else:
             return False
-    def deleteFromServer(self,id):
-        e={
+
+    def deleteFromServer(self, id):
+        e = {
             'id': id,
             'type': 'delete'
         }
         self.client.send(e)
 
-    def deleteFromClient(self,e):
+    def deleteFromClient(self, e):
         self.canvas.delete(e["id"])
-        i=0
-        while i<len(self.events):
-            if self.events[i]["id"]==e["id"]:
-                #del self.events[e["id"]]
+        i = 0
+        while i < len(self.events):
+            if self.events[i]["id"] == e["id"]:
+                # del self.events[e["id"]]
                 del self.events[i]
-                #break
-            i+=1
-    def delete(self,event): #TODO: rename to erase
+                # break
+            i += 1
+
+    def delete(self, event):  # TODO: rename to erase
         for a in self.events:
-            if a["type"]=="line":
-                #print(event.x, a["x1"],a["x2"],event.y,a["y1"],a["y2"])
+            if a["type"] == "line":
+                # print(event.x, a["x1"],a["x2"],event.y,a["y1"],a["y2"])
                 x0 = event.x
                 y0 = event.y
                 x1 = a["x1"]
                 x2 = a["x2"]
                 y1 = a["y1"]
                 y2 = a["y2"]
-                #dist = self.distance(event.x, a["x1"],a["x2"],event.y,a["y1"],a["y2"])
-                #doesn't work for a finite line segment:
-                #dist = (abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1)))/(math.sqrt((x2-x1)**2 + (y2 -y1)**2))
-                
-                #let's create an imaginary box i...
+                # dist = self.distance(event.x, a["x1"],a["x2"],event.y,a["y1"],a["y2"])
+                # doesn't work for a finite line segment:
+                # dist = (abs((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1)))/(math.sqrt((x2-x1)**2 + (y2 -y1)**2))
 
-                #actually lets use code from the internet:
-                dist = self.dist(x1,y1,x2,y2,x0,y0)
-              
-                
-                #print(dist)
+                # let's create an imaginary box i...
+
+                # actually lets use code from the internet:
+                dist = self.dist(x1, y1, x2, y2, x0, y0)
+
+                # print(dist)
                 if dist < 10:
                     self.deleteFromServer(a["id"])
                     self.canvas.delete(a["id"])
-                    #del self.events[a["id"]]
-                    i=0
-                    while i<len(self.events):
-                        if self.events[i]["id"]==a["id"]:
-                            #del self.events[e["id"]]
+                    # del self.events[a["id"]]
+                    i = 0
+                    while i < len(self.events):
+                        if self.events[i]["id"] == a["id"]:
+                            # del self.events[e["id"]]
                             del self.events[i]
-                            #break
-                        i+=1
+                            # break
+                        i += 1
             '''
             elif a["type"]=="image": #TODO: erase should not delete images
                 #print("delete image?")
@@ -378,12 +414,11 @@ class Gui:
                         i+=1
                     #print("image deleted")
             '''
-            #TODO add delete note
+            # TODO add delete note
 
-    def undo(self): #TODO: should affect drawings and images
+    def undo(self):  # TODO: should affect drawings and images
         print("undo")
-        #reverse the previous action
-
+        # reverse the previous action
 
     def savePng(self):
         # takes a screenshot of the tkinter window
@@ -392,11 +427,10 @@ class Gui:
         y = self.canvas.winfo_rooty()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
-        #print(x, y, w, h)
-        ss = grab(bbox=(x, y, w+x, h+y))
+        # print(x, y, w, h)
+        ss = grab(bbox=(x, y, w + x, h + y))
         ss.show()
         ss.save("./../whiteboard.png")
-
 
     def saveJpeg(self):
         # takes a screenshot of the tkinter window
@@ -405,14 +439,12 @@ class Gui:
         y = self.canvas.winfo_rooty()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
-        #print(x, y, w, h)
-        ss = grab(bbox=(x, y, w+x, h+y))
+        # print(x, y, w, h)
+        ss = grab(bbox=(x, y, w + x, h + y))
         ss.show()
         ss.save("./../whiteboard.jpeg")
 
-
     def addCommentToggle(self):
-        # TODO: fix interaction with erase button
         if self.comm:
             self.comm = False
             self.canvas.bind("<B1-Motion>", self.addLine)
@@ -429,11 +461,9 @@ class Gui:
             self.comment_btn.config(relief=SUNKEN)
             print("binded to addcomment, unbound motion")
 
-
     # used for binding a button to nothing
     def nothing(self, event):
         pass
-
 
     def addCommentbox(self, event):
         # TODO add globals for widths and heights etc..
@@ -474,7 +504,8 @@ class Gui:
                     comment = ""
                     id = str(uuid.uuid4())
                     # width and height are different units in frames and other boxes...
-                    frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height, bg="gray")
+                    frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width,
+                                  height=self.comment_frame_height, bg="gray")
                     frame.place(x=x2, y=y2)
                     txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
                     label = Label(frame, text="By you")
@@ -500,7 +531,6 @@ class Gui:
                     txt.bind('<Return>', self.updateComment)
                     break
 
-
     def addChildComment(self, x0):
         comments = []
         for c in self.events:
@@ -511,11 +541,12 @@ class Gui:
         for c in comments:
             if c["y2"] > y0:
                 y0 = c["y2"]
-        
+
         comment = ""
         id = str(uuid.uuid4())
         # width and height are different units in frames and other boxes...
-        frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height, bg="gray")
+        frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height,
+                      bg="gray")
         frame.place(x=x0, y=y0)
         txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
         label = Label(frame, text="By you")
@@ -540,7 +571,6 @@ class Gui:
         self.client.send(e)
         txt.bind('<Return>', self.updateComment)
 
-
     def updateComment(self, event):
         txt = event.widget
         e = {
@@ -553,18 +583,18 @@ class Gui:
         }
         self.events.append(e)
         self.client.send(e)
-        #print("sent stufff", e)
-
+        # print("sent stufff", e)
 
     def addCommentboxFromClient(self, rec_e: dict):
         id = rec_e["id"]
 
-        frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height, bg="gray")
+        frame = Frame(self.canvas, relief=RIDGE, width=self.comment_frame_width, height=self.comment_frame_height,
+                      bg="gray")
         frame.place(x=rec_e["x1"], y=rec_e["y1"])
         txt = Text(frame, width=10, height=5, bd='4', bg="white", name=id)
         address = str(rec_e["address"][1])
         label = Label(frame, text="By " + address)
-
+        # TODO: use grid for placement
         label.place(x=0, y=0)
         txt.place(x=0, y=20)
 
@@ -584,42 +614,38 @@ class Gui:
         self.events.append(e)
         txt.bind('<Return>', self.updateComment)
 
-
     def updateCommentFromClient(self, e):
-        #print(e)
-        #print("update", self.texts[e["id"]])
+        # print(e)
+        # print("update", self.texts[e["id"]])
 
         txt = self.texts[e["id"]]
         if txt:
-            #print("it works")
+            # print("it works")
             txt.delete('1.0', 'end-1c')
             txt.insert('1.0', e["comment"])
         else:
-            #print("not work")
+            # print("not work")
             pass
 
-
-
-
     def run(self):
-        #TODO: make possible to work over internet.
-        #TODO: create session!
-        #TODO: invite session
-        #TODO: request to join session
-        #TODO: join session
+        # TODO: make possible to work over internet.
+        # TODO: create session!
+        # TODO: invite session
+        # TODO: request to join session
+        # TODO: join session
         root = Tk()
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
 
-        #clientv1.connect()#TODO: move to main client_main
+        # clientv1.connect()#TODO: move to main client_main
 
         self.canvas = Canvas(root, background="white")
         self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
-        
+
         self.canvas.bind("<Button-1>", self.savePosn)
         self.canvas.bind("<B1-Motion>", self.addLine)
 
-        #print(self.kumi)
+        # print(self.kumi)
 
         '''
         id = canvas.create_rectangle((10, 10, 30, 30), fill="red")
@@ -629,33 +655,33 @@ class Gui:
         id = canvas.create_rectangle((10, 60, 30, 80), fill="blue")
         canvas.tag_bind(id, "<Button-1>", lambda x: setColor("blue"))
         '''
-        #id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
-        #self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
+        # id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
+        # self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
         # TODO: make button placement look nice
         btn = Button(root, text='QUIT!', width=5,
-             height=2, bd='10', command=root.destroy)
+                     height=2, bd='10', command=root.destroy)
         btn.place(x=0, y=0)
         btn = Button(root, text='print', width=5,
-             height=2, bd='10', command= lambda: self.printLine())
+                     height=2, bd='10', command=lambda: self.printLine())
         btn.place(x=0, y=55)
         btn = Button(root, text='show image', width=10,
-             height=5, bd='10', command= lambda: self.addPhoto())
+                     height=5, bd='10', command=lambda: self.addPhoto())
         btn.place(x=0, y=110)
         btn = Button(root, text='choose image', width=10,
-             height=5, bd='10', command= lambda: self.chooseImage())
+                     height=5, bd='10', command=lambda: self.chooseImage())
         btn.place(x=0, y=210)
-        #txt2 = Text(root, width=10, height=5, bd='10')
-        #txt.place(x=105, y=300)
+        # txt2 = Text(root, width=10, height=5, bd='10')
+        # txt.place(x=105, y=300)
         btn = Button(root, text='sticky note:', width=10,
-             height=5, bd='10', command= lambda: self.addNote())
+                     height=5, bd='10', command=lambda: self.addNote())
         btn.place(x=0, y=300)
         self.erase_btn = Button(root, text="Erase", width=5,
-            height=2, bd='10', command= lambda: self.erase())
+                                height=2, bd='10', command=lambda: self.erase())
         self.erase_btn.place(x=65, y=0)
-        #self.addLineFromClient()
+        # self.addLineFromClient()
         btn = Button(root, text='undo', width=10,
-             height=5, bd='10', command= lambda: self.undo())
-        #self.btn.place(x=65, y=0)
+                     height=5, bd='10', command=lambda: self.undo())
+        # self.btn.place(x=65, y=0)
         # save PNG
         self.btn = Button(root, text="save PNG", width=10,
                           height=2, bd='10', command=lambda: self.savePng())
@@ -665,7 +691,7 @@ class Gui:
                           height=2, bd='10', command=lambda: self.saveJpeg())
         self.btn.place(x=0, y=465)
         self.comment_btn = Button(root, text="add comment", width=10,
-                          height=2, bd='10', command=lambda: self.addCommentToggle())
+                                  height=2, bd='10', command=lambda: self.addCommentToggle())
         self.comment_btn.place(x=0, y=525)
-        
+
         root.mainloop()
