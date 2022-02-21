@@ -57,6 +57,8 @@ class Client:
                 gui.deleteFromClient(e)
             elif e["type"]=="updateNote":
                 gui.updateNoteFromClient(e)
+            elif e["type"]=="deleteNote":
+                gui.deleteNoteComingFromServer(e)
             elif e["type"]=="commentbox":
                 gui.addCommentboxFromClient(e)
             elif e["type"]=="updateComment":
