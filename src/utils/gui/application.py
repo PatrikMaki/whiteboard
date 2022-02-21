@@ -17,8 +17,8 @@ class Application:
        
        
        events = []
-       def addSession(self):
-            
+       def addSession(self,input):
+              
             #new
             #add a new dict as a session
             #add the dict to events
@@ -46,12 +46,58 @@ class Application:
             '''
 
             # Set the canvas scrolling region
-            self.canvas.config(scrollregion=self.canvas.bbox("all"))
-            
-       def inviteToSession(self):
-              id = 1
+            #self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+       def createSession(self,id):
               e={
                'id': id,
+               'time': time.time(),
+               'type': 'create',
+               'ip': "1.10.10101"  #TODO: find the session ip?
+              }
+              #start gui and link it to this session
+              self.events.append(e)
+              self.client.send(e) #add functionality to server that it can handle multiple sessions
+              print("session created:",e)
+            
+       def inviteToSession(self,id,ip):
+              #id = 1
+              e={
+               'id':id,
+               'time': time.time(),
+               'type': 'invite',
+               'ip': ip  #
+              }
+               
+              self.events.append(e)
+              self.client.send(e)
+              print("invite")
+              
+       def requestToJoin(self,id):
+              e={
+               'id':id,
+               'time': time.time(),
+               'type': 'request',
+               'ip': "1.10.10101"  #
+              }
+               
+              self.events.append(e)
+              self.client.send(e)
+              print("request")
+              
+       def accept(self,input):
+              e={
+               'time': time.time(),
+               'type': 'accept',
+               'ip': "1.10.10101"  #
+              }
+               
+              self.events.append(e)
+              self.client.send(e)
+              print("accept")
+              
+       def decline(self,input):
+              e={
                'time': time.time(),
                'type': 'invite',
                'ip': "1.10.10101"  #
@@ -59,15 +105,6 @@ class Application:
                
               self.events.append(e)
               self.client.send(e)
-              print("invite")
-              
-       def requestToJoin(self):
-              print("a")
-              
-       def accept(self):
-              print("accept")
-              
-       def decline(self):
               print("decline")
              
          
@@ -80,7 +117,30 @@ class Application:
                #TODO: invite session
                #TODO: request to join session
                #TODO: join session
+               #print session id in whiteboard
+               #TODO: instead of ip adrresse have user names????
+               print("Commands:\ncreate <id>") #create session
+               print("invite <id> <user-ip-address>") #invite a user to a session
+               print("request <id>") #request to join a session by id
+               print("accept <user-ip-address>") #accept user by ip
+               print("decline <user-ip-address>") #decline a user by ip
+               while True:
+                      
+                      a = input("command: ")
+                      if a=="q" or "c" or "quit":
+                             break
+                      if a=="help":
+                             print("Commands:\ncreate <id>") #create session
+                             print("invite <id> <user-ip-address>") #invite a user to a session
+                             print("request <id>") #request to join a session by id
+                             print("accept <user-ip-address>") #accept user by ip
+                             print("decline <user-ip-address>") #decline a user by ip
+                      b = a.split()
+                      if b[0]=="create":
+                             self.createSession(b[1])
+                      
                #TODO: create gui using frames!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+               '''
                root = Tk()
                root.columnconfigure(0, weight=1)
                root.rowconfigure(0, weight=1)
@@ -118,5 +178,7 @@ class Application:
                
                #######
                root.mainloop()
+               '''
+               print("end")
 A = Application()
 A.run()
