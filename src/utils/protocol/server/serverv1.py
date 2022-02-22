@@ -1,11 +1,15 @@
 # import socket programming library
 import socket
+import os
 import ssl
 import json
 import time
 # import thread module
 from _thread import *
 import threading
+
+import pathlib
+from utils.protocol.server.certificate import create_certificate
 
 class Server:
 
@@ -106,8 +110,14 @@ class Server:
         port = self.PORT
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        certpath = pathlib.Path(os.environ.get("SERVER_CERT_PATH", "./cert/cert.pem"))
+        keypath = pathlib.Path(os.environ.get("SERVER_KEY_PATH", "./cert/key.pem"))
+
+        if not certpath.exists() or not keypath.exists():
+            create_certificate()
+
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
-        context.load_cert_chain(keyfile="./cert/key.pem", certfile="./cert/cert.pem")
+        context.load_cert_chain(keyfile=keypath, certfile=certpath)
 
         s.bind((host, port))
         print("socket binded to port", port)
