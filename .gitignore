@@ -1,2 +1,4 @@
 __pycache__/
 other/
+src/cert
+.DS_Store
