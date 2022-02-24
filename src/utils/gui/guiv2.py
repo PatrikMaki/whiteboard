@@ -55,7 +55,8 @@ class Gui:
             'x1': self.lastx,
             'y1': self.lasty,
             'x2': event.x,
-            'y2': event.y
+            'y2': event.y,
+            'origin': 'you'
         }
         # global events
         self.events.append(e)
@@ -74,7 +75,8 @@ class Gui:
             'x1': rec_e["x1"],
             'y1': rec_e["y1"],
             'x2': rec_e["x2"],
-            'y2': rec_e["y2"]
+            'y2': rec_e["y2"],
+            'origin': 'other'
         }
         self.events.append(e)
 
@@ -353,8 +355,8 @@ class Gui:
     def printLine(self):
         print("\nEvents:")
         for event in self.events:
-            if event["type"] != "line":
-                print(event)
+            #if event["type"] != "line":
+             print(event)
         print("\n")
 
     def erase(self):
@@ -485,9 +487,26 @@ class Gui:
             '''
             # TODO add delete note
 
-    def undo(self):  # TODO: should affect drawings and images
-        print("undo")
-        # reverse the previous action
+    # affects lines only
+    def undo(self):
+        # how many "line" events should be removed
+        # 30-ish seems to be optimal
+        remove_amount = 30
+        j = 0
+
+        for e in reversed(self.events):
+            if j > remove_amount:
+                break
+            if e["type"] == "line":
+                if e["origin"] == "you":
+                    self.deleteFromServer(e["id"])
+                    self.canvas.delete(e["id"])
+                    i = 0
+                    while i < len(self.events):
+                        if self.events[i]["id"] == e["id"]:
+                            del self.events[i]
+                        i += 1
+                    j += 1
 
     def savePng(self):
         # takes a screenshot of the tkinter window
@@ -748,9 +767,9 @@ class Gui:
                                 height=2, bd='10', command=lambda: self.erase())
         self.erase_btn.place(x=65, y=0)
         # self.addLineFromClient()
-        btn = Button(root, text='undo', width=10,
-                     height=5, bd='10', command=lambda: self.undo())
-        # self.btn.place(x=65, y=0)
+        btn = Button(root, text='undo', width=5,
+                     height=2, bd='10', command=lambda: self.undo())
+        btn.place(x=65, y=55)
         # save PNG
         self.btn = Button(root, text="save PNG", width=10,
                           height=2, bd='10', command=lambda: self.savePng())
