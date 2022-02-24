@@ -48,65 +48,87 @@ class Application:
             # Set the canvas scrolling region
             #self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
-       def createSession(self,id):
+       def createSession(self,session_id):
               e={
-               'id': id,
+               'id': session_id, #can be changed to name later
                'time': time.time(),
-               'type': 'create',
-               'ip': "1.10.10101"  #TODO: find the session ip?
+               'type': 'create'
               }
               #start gui and link it to this session
               self.events.append(e)
-              self.client.send(e) #add functionality to server that it can handle multiple sessions
+              self.client.send(e) 
               print("session created:",e)
-            
-       def inviteToSession(self,id,ip):
-              #id = 1
+              
+       def login(self,user_id):
               e={
-               'id':id,
+                'id': user_id,
+                'time': time.time(),
+                'type': 'login'
+              }
+              self.events.append(e)
+              self.client.send(e) 
+              print("session created:",e)
+              
+       def inviteToSession(self,user_id, session_id):
+              """ 
+              host client sends an invitation to join a session 
+              to another client indicated by user id via the server
+              """
+              e={
+               'user_id':user_id,
                'time': time.time(),
                'type': 'invite',
-               'ip': ip  #
+               'session_id': session_id
               }
-               
               self.events.append(e)
               self.client.send(e)
               print("invite")
               
-       def requestToJoin(self,id):
+       def requestToJoin(self,session_id):
+              """ 
+              new client sends an invitation to join a session 
+              to host client that is a host of a session indicated by user id via the server
+              """
               e={
-               'id':id,
+               'id':session_id,
                'time': time.time(),
-               'type': 'request',
-               'ip': "1.10.10101"  #
+               'type': 'request'
               }
                
               self.events.append(e)
               self.client.send(e)
               print("request")
               
-       def accept(self,input):
+       def accept(self,session_id,user_id):
+              """ 
+              host client accepts a request to join
+              """
               e={
+               'session_id': session_id,
                'time': time.time(),
                'type': 'accept',
-               'ip': "1.10.10101"  #
+               'user_id': user_id 
               }
                
               self.events.append(e)
               self.client.send(e)
               print("accept")
               
-       def decline(self,input):
+       def decline(self,session_id,user_id):
               e={
+               'session_id': session_id,
                'time': time.time(),
-               'type': 'invite',
-               'ip': "1.10.10101"  #
+               'type': 'decline',
+               'user_id': user_id 
               }
                
               self.events.append(e)
               self.client.send(e)
               print("decline")
-             
+       #end session handling???
+       #logout ???
+       #do gui for this and finnish cli and test it
+       #modify server and client
          
          
          

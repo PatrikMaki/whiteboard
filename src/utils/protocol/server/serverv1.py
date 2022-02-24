@@ -17,7 +17,9 @@ class Server:
     PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
 
     print_lock = threading.Lock()
-
+    sessions = {} #key is session id(string ot int) values is events list
+    users = {} #key is user id and value is a dict of user info(ip,joined,id)
+    connections = {} #key is address string ip:port, value is user
     events = []
 
     def update_events(self,c,i, addr):
