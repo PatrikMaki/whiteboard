@@ -185,6 +185,9 @@ class Gui:
         txt = Text(frame, width=10, height=5, bd='10', bg="gray", name=id)
         closebutton = Button(frame, width=1, height=1, bd="0", text="X", command=lambda: self.deleteNote(id, frame_id))
         closebutton.grid(row=0, column=0, sticky="ne")
+        movebutton = Button(frame, text="Move", width=2, height=1, bd="0", command=lambda: self.moveNote(id, frame_id))
+        movebutton.grid(row=0, column=0, sticky="nw")
+
         # id = self.canvas.create_text(self.lastx, self.lasty,text=note)
         # self.canvas.itemcget(id).bind('<Enter>',updateNote)
         txt.grid(row=1, column=0)
@@ -207,6 +210,7 @@ class Gui:
         self.client.send(e)
         txt.bind('<Return>', self.updateNote)
 
+    # TODO remove old commented-out code
     def addNoteFromClient(self, rec_e: dict):
         id = rec_e["id"]
         frame_id = rec_e["frame_id"]
@@ -216,6 +220,8 @@ class Gui:
         txt.insert('1.0', rec_e["note"])
         closebutton = Button(frame, width=1, height=1, bd="0", text="X", command=lambda: self.deleteNote(id, frame_id))
         closebutton.grid(row=0, column=0, sticky="ne")
+        movebutton = Button(frame, text="Move", width=2, height=1, bd="0", command=lambda: self.moveNote(id, frame_id))
+        movebutton.grid(row=0, column=0, sticky="nw")
 
         # id = self.canvas.create_text(self.lastx, self.lasty,text=note)
         # self.canvas.itemcget(id).bind('<Enter>',updateNote)
@@ -237,8 +243,63 @@ class Gui:
         self.events.append(e)
         txt.bind('<Return>', self.updateNote)
 
+    # does not change the coordinates of the note in events
+    # id is actually needed in involving moving
+    # may want to use it if undo needs to move notes
+    def moveNote(self, id, frame_id):
+        print("moving")
+        toggle_kumi = False
+        toggle_comment = False
+        if self.kumi:
+            self.kumi = True
+            self.erase()
+            toggle_kumi = True
+        elif self.comm:
+            self.comm = True
+            self.addCommentToggle()
+            toggle_comment = True
+
+        self.canvas.bind("<B1-Motion>", self.nothing)
+        self.canvas.bind("<Button-1>",
+                         lambda event, tx_id=id, fr_id=frame_id, tg_kumi=toggle_kumi, tg_comment=toggle_comment:
+                         self.getCoordsAndMove(event, tx_id, fr_id, tg_kumi, tg_comment))
+
+    def getCoordsAndMove(self, e, id, frame_id, toggle_kumi, toggle_comment):
+        print("moving note to:", e.x, e.y)
+        frame = self.canvas.nametowidget(frame_id)
+        frame.place(x=e.x, y=e.y)
+        if toggle_kumi:
+            self.erase()
+        elif toggle_comment:
+            self.addCommentToggle()
+        else:
+            self.canvas.bind("<B1-Motion>", self.addLine)
+            self.canvas.bind("<Button-1>", self.savePosn)
+        self.moveNoteFromServer(id, frame_id, e.x, e.y)
+
+    # send event to server
+    def moveNoteFromServer(self, id, frame_id, x, y):
+        e = {
+            'id': id,
+            'frame_id': frame_id,
+            'type': 'moveNote',
+            'x': x,
+            'y': y
+        }
+        self.events.append(e)
+        self.client.send(e)
+
+    # get event from server
+    def moveNoteComingFromServer(self, e):
+        self.events.append(e)
+        frame_id = e["frame_id"]
+        x = e["x"]
+        y = e["y"]
+        frame = self.canvas.nametowidget(frame_id)
+        frame.place(x=x, y=y)
+
     def updateNoteFromClient(self, e):
-        # print("updfate",self.texts[e["id"]])
+        self.events.append(e)
         print(e["id"])
         txt = self.texts[e["id"]]
         if txt:
@@ -252,11 +313,6 @@ class Gui:
     def deleteNote(self, delete_id, delete_frame_id):
         self.deleteNoteFromServer(delete_id, delete_frame_id)
         print("deleting", delete_id)
-        for i, note in enumerate(self.events):
-            if note["id"] == delete_id and note["type"] == "note":
-                print(note)
-                self.canvas.delete(note["id"])
-                del self.events[i]
         delete_frame = self.canvas.nametowidget(delete_frame_id)
         delete_frame.grid_forget()
         delete_frame.destroy()
@@ -268,25 +324,38 @@ class Gui:
             'frame_id': delete_frame_id,
             'type': 'deleteNote'
         }
+        self.events.append(e)
         self.client.send(e)
 
     # coming from another client -> server
     def deleteNoteComingFromServer(self, e):
+        self.events.append(e)
         delete_id = e["id"]
         delete_frame_id = e["frame_id"]
         print("deleting", delete_id)
+        # below code removes all events with id=delete_id
+        # = all events involving the note
+        # does not make a difference really
+        # if used, include in deleteNote as well
+        """delete_index = []
         for i, note in enumerate(self.events):
-            if note["id"] == delete_id and note["type"] == "note":
+            if note["id"] == delete_id:
                 self.canvas.delete(note["id"])
-                del self.events[i]
+                delete_index.append(i)
+        for j in reversed(delete_index):
+            del self.events[j]"""
+        # --------------------
         delete_frame = self.canvas.nametowidget(delete_frame_id)
         delete_frame.grid_forget()
         delete_frame.destroy()
 
 
     def printLine(self):
+        print("\nEvents:")
         for event in self.events:
-            print(event)
+            if event["type"] != "line":
+                print(event)
+        print("\n")
 
     def erase(self):
         print("test")
