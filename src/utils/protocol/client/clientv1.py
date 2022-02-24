@@ -1,4 +1,5 @@
 import socket
+import ssl
 import json
 
 class Client:
@@ -14,7 +15,8 @@ class Client:
     data = s.recv(1024)
     '''
     def connect(self):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
+        self.s = context.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.s.connect((self.HOST, self.PORT))
 
     def send(self, dictionary: dict):
