@@ -5,7 +5,6 @@ from _thread import *
 #this program should first initiate the server then the client???...
 
 def main():
-    a = app.Application()
     g = gui.Gui()
     c = client.Client()
     c.connect()
