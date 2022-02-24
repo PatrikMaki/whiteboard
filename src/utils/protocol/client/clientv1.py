@@ -1,5 +1,4 @@
 import socket
-import ssl
 import json
 
 class Client:
@@ -15,8 +14,7 @@ class Client:
     data = s.recv(1024)
     '''
     def connect(self):
-        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
-        self.s = context.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.HOST, self.PORT))
 
     def send(self, dictionary: dict):
@@ -61,6 +59,8 @@ class Client:
                 gui.updateNoteFromClient(e)
             elif e["type"]=="deleteNote":
                 gui.deleteNoteComingFromServer(e)
+            elif e["type"]=="moveNote":
+                gui.moveNoteComingFromServer(e)
             elif e["type"]=="commentbox":
                 gui.addCommentboxFromClient(e)
             elif e["type"]=="updateComment":
