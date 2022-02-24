@@ -715,6 +715,27 @@ class Gui:
             # print("not work")
             pass
 
+    # creates new window to ask to save whiteboard
+    def promptSaveWhiteboard(self):
+        new_window = Tk()
+        new_window.geometry("372x150")
+        frame = Frame(new_window, bg="gray", width=700, height=700)
+        frame.place(x=0, y=0)
+        label = Label(frame, text="Save whiteboard?")
+        label.grid(row=0, column=1)
+        no_btn = Button(frame, text="No", width=5,
+                        height=2, bd='10', command=lambda: [new_window.destroy()])
+        png_btn = Button(frame, text="save PNG", width=10,
+                         height=2, bd='10',
+                         command=lambda: [new_window.destroy(), time.sleep(1), self.savePng()])
+        jpeg_btn = Button(frame, text="save JPEG", width=10,
+                          height=2, bd='10',
+                          command=lambda: [new_window.destroy(), time.sleep(1), self.saveJpeg()])
+        no_btn.grid(row=1, column=1)
+        png_btn.grid(row=2, column=0)
+        jpeg_btn.grid(row=2, column=2)
+
+
     def run(self):
         # TODO: make possible to work over internet.
         # TODO: create session!
@@ -781,5 +802,11 @@ class Gui:
         self.comment_btn = Button(root, text="add comment", width=10,
                                   height=2, bd='10', command=lambda: self.addCommentToggle())
         self.comment_btn.place(x=0, y=525)
+
+        # only needed for testing
+        # Delete this later when endsession is connected to promptsavewhiteboard
+        btn = Button(root, text="Prompt", width=5,
+                                height=2, bd='10', command=lambda: self.promptSaveWhiteboard())
+        btn.place(x=130, y=0)
 
         root.mainloop()
