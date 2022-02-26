@@ -19,6 +19,8 @@ class Gui:
     # lastx, lasty = 0,0
     # img: Image
     # id=1
+    
+    
     imagename = "photo.gif"
     events = []
     images = []
@@ -30,7 +32,14 @@ class Gui:
     comm = False
     comment_frame_height = 115
     comment_frame_width = 93
-
+    running = False
+    
+    def is_running(self):
+        return self.running
+    
+    def set_running(self,running):
+        self.running = running
+        
     def set_client(self, client):
         self.client = client
 
@@ -511,8 +520,8 @@ class Gui:
     def savePng(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
-        x = self.canvas.winfo_rootx()
-        y = self.canvas.winfo_rooty()
+        x = self.canvas.winfo_self.rootx()
+        y = self.canvas.winfo_self.rooty()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
@@ -523,8 +532,8 @@ class Gui:
     def saveJpeg(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
-        x = self.canvas.winfo_rootx()
-        y = self.canvas.winfo_rooty()
+        x = self.canvas.winfo_self.rootx()
+        y = self.canvas.winfo_self.rooty()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
@@ -734,21 +743,29 @@ class Gui:
         no_btn.grid(row=1, column=1)
         png_btn.grid(row=2, column=0)
         jpeg_btn.grid(row=2, column=2)
+        
+   
+        
 
-
-    def run(self):
+    def run(self,session_id):
         # TODO: make possible to work over internet.
         # TODO: create session!
         # TODO: invite session
         # TODO: request to join session
         # TODO: join session
-        root = Tk()
-        root.columnconfigure(0, weight=1)
-        root.rowconfigure(0, weight=1)
+        self.root = Tk()
+        #self.root.withdraw()
+        
+        self.session_id = session_id
+        #self.root.deiconify()
+        print("kissa",self.session_id)
+        self.root.title(self.session_id)
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
 
         # clientv1.connect()#TODO: move to main client_main
 
-        self.canvas = Canvas(root, background="white")
+        self.canvas = Canvas(self.root, background="white")
         self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 
         self.canvas.bind("<Button-1>", self.savePosn)
@@ -767,46 +784,48 @@ class Gui:
         # id = self.canvas.create_rectangle((10, 80, 50, 120), fill="black")
         # self.canvas.tag_bind(id, "<Button-1>", lambda y: self.printLine())
         # TODO: make button placement look nice
-        btn = Button(root, text='QUIT!', width=5,
-                     height=2, bd='10', command=root.destroy)
+        btn = Button(self.root, text='QUIT!', width=5,
+                     height=2, bd='10', command=self.root.destroy)
         btn.place(x=0, y=0)
-        btn = Button(root, text='print', width=5,
+        btn = Button(self.root, text='print', width=5,
                      height=2, bd='10', command=lambda: self.printLine())
         btn.place(x=0, y=55)
-        btn = Button(root, text='show image', width=10,
+        btn = Button(self.root, text='show image', width=10,
                      height=5, bd='10', command=lambda: self.addPhoto())
         btn.place(x=0, y=110)
-        btn = Button(root, text='choose image', width=10,
+        btn = Button(self.root, text='choose image', width=10,
                      height=5, bd='10', command=lambda: self.chooseImage())
         btn.place(x=0, y=210)
-        # txt2 = Text(root, width=10, height=5, bd='10')
+        # txt2 = Text(self.root, width=10, height=5, bd='10')
         # txt.place(x=105, y=300)
-        btn = Button(root, text='sticky note:', width=10,
+        btn = Button(self.root, text='sticky note:', width=10,
                      height=5, bd='10', command=lambda: self.addNote())
         btn.place(x=0, y=300)
-        self.erase_btn = Button(root, text="Erase", width=5,
+        self.erase_btn = Button(self.root, text="Erase", width=5,
                                 height=2, bd='10', command=lambda: self.erase())
         self.erase_btn.place(x=65, y=0)
         # self.addLineFromClient()
-        btn = Button(root, text='undo', width=5,
+        btn = Button(self.root, text='undo', width=5,
                      height=2, bd='10', command=lambda: self.undo())
         btn.place(x=65, y=55)
         # save PNG
-        self.btn = Button(root, text="save PNG", width=10,
+        self.btn = Button(self.root, text="save PNG", width=10,
                           height=2, bd='10', command=lambda: self.savePng())
         self.btn.place(x=0, y=400)
         # save JPEG
-        self.btn = Button(root, text="save JPEG", width=10,
+        self.btn = Button(self.root, text="save JPEG", width=10,
                           height=2, bd='10', command=lambda: self.saveJpeg())
         self.btn.place(x=0, y=465)
-        self.comment_btn = Button(root, text="add comment", width=10,
+        self.comment_btn = Button(self.root, text="add comment", width=10,
                                   height=2, bd='10', command=lambda: self.addCommentToggle())
         self.comment_btn.place(x=0, y=525)
 
         # only needed for testing
         # Delete this later when endsession is connected to promptsavewhiteboard
-        btn = Button(root, text="Prompt", width=5,
+        btn = Button(self.root, text="Prompt", width=5,
                                 height=2, bd='10', command=lambda: self.promptSaveWhiteboard())
         btn.place(x=130, y=0)
+        self.client.send({"type":"ping"})
+        self.root.mainloop()
 
-        root.mainloop()
+        

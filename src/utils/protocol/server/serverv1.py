@@ -9,6 +9,8 @@ from _thread import *
 import threading
 
 import pathlib
+
+from matplotlib import use
 from utils.protocol.server.certificate import create_certificate
 
 class Server:
@@ -18,30 +20,165 @@ class Server:
 
     print_lock = threading.Lock()
     sessions = {} #key is session id(string ot int) values is events list
-    users = {} #key is user id and value is a dict of user info(ip,joined,id)
+    users = {} #key is user id and value is connection
     connections = {} #key is address string ip:port, value is user
-    events = []
-
-    def update_events(self,c,i, addr):
+    hosts = {} #key is host session_id and value is connection
+    members = {} #key is session_id and value is a list of connections
+    #events = [] #del
+    def login(self, e:dict, address, c):
+        if e["id"] in self.users:
+            return {'type':'login_response',
+                    'description':'user already exists',
+                    'status':'error'}
+        self.users[e["id"]]=c
+        return {'type':'login_response',
+                    'description':'user created',
+                    'status':'ok'}
+        
+    def disconnect(self, c, addr): 
+        # user is removed from users dict
+        e = {
+            'type':'disconnect'
+        }
+        for session in self.hosts:
+            if self.hosts[session].fileno() == c.fileno():
+                del self.hosts[session]
+                for cc in self.members[session]:
+                    if cc!=c:
+                        self.send_message(cc, e)
+                del self.members[session]
+                break
+        for user in self.users:
+            if self.users[user].fileno()==c.fileno():
+                del self.users[user]
+                break
+    
+    def create_session(self,e:dict, address, c):
+        id = e["id"] #session_id
+        if id in self.sessions:
+            return {'type':'session_response',
+                'description':'session already exists',
+                'status':'error',
+                'id':id}
+        #self.sessions[id] = self.events
+        self.sessions[id] = []
+        self.hosts[id]=c
+        self.members[id]=[c]
+        return {'type':'session_response',
+                'description':'session created',
+                'status':'ok',
+                'id':id
+                }
+        
+    def invite_to_session(self, e:dict):
+        u = self.users.get(e["user_id"],None)
+        if u:
+            self.send_message(u,e)
+        else:
+            return {'type':'invite_response',
+                    'description':'user does not exists',
+                    'status':'error'}
+            
+    def request_to_join_session(self,e:dict,c):
+        userfound = False
+        user = None
+        for a in self.users:
+            if self.users[a].fileno() == c.fileno():
+                userfound=True
+                print("user found",a)
+                user = a
+                break
+        if not userfound:
+            return {'type':'request_response',
+                    'description':'user not logged exists',
+                    'status':'error'}
+        
+        s = self.hosts.get(e["id"],None)
+        if s:
+            #print(s)
+            e["user_id"]=user
+            host = self.hosts[e["id"]]
+            self.send_message(host,e)
+            print("message send")
+        else:
+            return {'type':'request_response',
+                    'description':'host does not exists',
+                    'status':'error'}
+            
+    def accept(self,e:dict):
+        user_id = e["user_id"]
+        session_id = e["session_id"]
+        client_c = self.users[user_id]
+        self.members[session_id].append(client_c)
+        self.send_message(client_c,e)
+        
+    def decline(self,e:dict):
+        user_id = e["user_id"]
+        session_id = e["session_id"]
+        client_c = self.users[user_id]
+        #self.members[session_id].append(client_c)
+        self.send_message(client_c,e)
+        
+    def list_users(self):
+        users =[]
+        for u in self.users.keys():
+            users.append(str(u))
+        e={
+            'time': time.time(),
+            'type': 'list_users_response',
+            'users': users
+            }
+        return e
+    
+    def list_sessions(self):
+        sessions =[]
+        for u in self.sessions.keys():
+            sessions.append(str(u))
+        e={
+            'time': time.time(),
+            'type': 'list_sessions_response',
+            'sessions': sessions
+            }
+        return e
+    
+    def send_message(self,c,e):
+        try:
+            json_object = json.dumps(e)
+            n = len(json_object).to_bytes(4, byteorder='big')
+            c.sendall(n)
+            c.sendall(json_object.encode("utf8"))
+        except Exception as e:
+            print("error",e)
+        
+    def update_events(self,c,i, addr, session_id):
+        if not session_id in self.sessions:
+            return 0
+        events = self.sessions[session_id]
         #global events
+        #print(i)
+        #print(len(events))
         #print("update events",len(events),i)
-        if i<len(self.events):
+        if i<len(events):
                 #print("server should start sending")
                 #print(i,len(self.events))
                 #print(self.events)
-                while i<len(self.events):
+                while i<len(events):
                     #print(self.events[i]["address"]!=addr)
-                    if self.events[i]["address"]!=addr:
+                    print(events[i], addr)
+                    if events[i]["address"]!=addr:
+                        print("sending message")
+                        self.send_message(c,events[i])
                         #print(self.events[i])
-                        json_object = json.dumps(self.events[i])
-                        n = len(json_object).to_bytes(4, byteorder='big')
-                        c.sendall(n)
-                        c.sendall(json_object.encode("utf8"))
+                        #json_object = json.dumps(self.events[i])
+                        #n = len(json_object).to_bytes(4, byteorder='big')
+                        #c.sendall(n)
+                        #c.sendall(json_object.encode("utf8"))
                     i+=1
         return i
 
     # thread function
     def threaded(self, c, addr):
+        session_id = 0
         c.settimeout(0.5)
         i=0
         #print("new client",c)
@@ -53,23 +190,25 @@ class Server:
                 #print("a",data)
             except socket.timeout:
                 #print("Didn't receive data! [Timeout 0.5s]")
-                i = self.update_events(c,i,addr)
+                
+                i = self.update_events(c,i,addr,session_id)
                 continue
         
             if not data:
                 print('Bye')
+                self.disconnect(c,addr)
                 # lock released on exit
                 self.print_lock.release()
                 break
             
-            i = self.update_events(c,i,addr)
+            i = self.update_events(c,i,addr,session_id)
 
             n = int.from_bytes(data,byteorder='big')
             #print("b",n)
             json_object = c.recv(n)
             #print("c",json_object)
             jsonstring = json_object.decode('utf8', errors='ignore')
-            #print("d",jsonstring)
+            print("d",jsonstring)
             e = json.loads(jsonstring)
             e["address"] = addr
             if e["type"]=='delete':
@@ -87,8 +226,37 @@ class Server:
                         break
                     j+=1
                 '''
+            elif e["type"]=='login':
+                a = self.login(e, addr, c)       
+            elif e["type"]=='create':
+                a = self.create_session(e, addr, c)
+                if a["status"]=="ok":
+                    session_id = a["id"]
+            elif e["type"]=='invite':
+                a = self.invite_to_session(e)
+            elif e["type"]=='request':
+                a = self.request_to_join_session(e,c)
+            elif e["type"]=='accept':
+                a = self.accept(e)
+                session_id = e["session_id"]
+            elif e["type"]=='decline':
+                a = self.decline(e)
+            elif e["type"]=='list_users':
+                a = self.list_users()
+            elif e["type"]=='list_sessions':
+                a = self.list_sessions()
             
-            self.events.append(e)
+                    
+            if a:
+                self.send_message(c,a)
+                print(a)
+            #all events should be appended to a correct event list
+            #in the sessons dict
+            #self.events.append(e)
+            session_id = e.get("session_id",None)
+            if session_id and session_id in self.sessions:
+                self.sessions[session_id].append(e)
+                print("this wont print")
             #i = self.update_events(c,i,addr)
             #i = self.update_events(c,i,addr)
             #print(e)
@@ -120,7 +288,7 @@ class Server:
 
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
         context.load_cert_chain(keyfile=keypath, certfile=certpath)
-
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((host, port))
         print("socket binded to port", port)
   

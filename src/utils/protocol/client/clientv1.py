@@ -14,19 +14,24 @@ class Client:
     s.sendall(b'Hello, world')
     data = s.recv(1024)
     '''
+    session_id = None
+    def set_session_id(self, id):
+        self.session_id = id
     def connect(self):
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS)
         self.s = context.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.s.connect((self.HOST, self.PORT))
 
     def send(self, dictionary: dict):
+        if not "session_id" in dictionary and self.session_id:
+            dictionary["session_id"]=self.session_id
         json_object = json.dumps(dictionary)
         n = len(json_object).to_bytes(4, byteorder='big')
         #global s
         self.s.sendall(n)
         self.s.sendall(json_object.encode("utf8"))
-    #TODO make new code work!:
-    def receive(self,gui):
+    
+    def receive(self,gui,app):
         print("receive")
         #global data
         #data = s.recv(1024)
@@ -67,6 +72,25 @@ class Client:
                 gui.addCommentboxFromClient(e)
             elif e["type"]=="updateComment":
                 gui.updateCommentFromClient(e)
+            elif e["type"]=="list_users_response":
+                app.list_users_response(e)
+            elif e["type"]=="login_response":
+                app.response(e)
+            elif e["type"]=="session_response":
+                app.response(e)
+                app.session_response(e)
+            elif e["type"]=="invite_response":
+                app.response(e)
+            elif e["type"]=="request_response":
+                app.response(e)
+            elif e["type"]=="list_sessions_response":
+                app.response(e)
+            elif e["type"]=="request":
+                app.response(e)
+            elif e["type"]=="accept":
+                app.response(e)
+                app.accept_handler(e)
+                
                 
         
 
