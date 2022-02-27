@@ -24,6 +24,7 @@ class Server:
     connections = {} #key is address string ip:port, value is user
     hosts = {} #key is host session_id and value is connection
     members = {} #key is session_id and value is a list of connections
+    invitations = {} #key user_id value is session_id
     #events = [] #del
     def login(self, e:dict, address, c):
         if e["id"] in self.users:
@@ -73,6 +74,10 @@ class Server:
     def invite_to_session(self, e:dict):
         u = self.users.get(e["user_id"],None)
         if u:
+            #print("invite to session:")
+            #print(u)
+            #print(e)
+            self.invitations[e["user_id"]] = e["session_id"]
             self.send_message(u,e)
         else:
             return {'type':'invite_response',
@@ -112,6 +117,46 @@ class Server:
         self.members[session_id].append(client_c)
         self.send_message(client_c,e)
         
+    def accept_invite(self,e:dict, c):
+        userfound = False
+        user = None
+        for a in self.users:
+            if self.users[a].fileno() == c.fileno():
+                userfound=True
+                print("user found",a)
+                user = a
+                break
+        if not userfound:
+            return {'type':'request_response',
+                    'description':'user not logged exists',
+                    'status':'error'}
+        if not (user in self.invitations and self.invitations[user] == e["session_id"]):
+            return {'type':'request_response',
+                    'description':'trying hack?',
+                    'status':'error'}
+        s = self.hosts.get(e["session_id"],None)
+        if s:
+            #print(s)
+            e["user_id"]=user
+            host = self.hosts[e["session_id"]]
+            self.send_message(host,e)
+            print("message send")
+            self.members[e["session_id"]].append(c)
+        else:
+            return {'type':'request_response',
+                    'description':'host does not exists',
+                    'status':'error'}
+            
+        '''
+        print("accept_invite\n",e)
+        user_id = e["user_id"]
+        session_id = e["session_id"]
+        client_c = self.users[user_id]
+        host_c = self.hosts[session_id]
+        self.members[session_id].append(client_c)
+        self.send_message(host_c,e)
+        print(host_c,client_c)
+        '''
     def decline(self,e:dict):
         user_id = e["user_id"]
         session_id = e["session_id"]
@@ -164,9 +209,9 @@ class Server:
                 #print(self.events)
                 while i<len(events):
                     #print(self.events[i]["address"]!=addr)
-                    print(events[i], addr)
+                    #print(events[i], addr)
                     if events[i]["address"]!=addr:
-                        print("sending message")
+                        #print("sending message")
                         self.send_message(c,events[i])
                         #print(self.events[i])
                         #json_object = json.dumps(self.events[i])
@@ -208,7 +253,7 @@ class Server:
             json_object = c.recv(n)
             #print("c",json_object)
             jsonstring = json_object.decode('utf8', errors='ignore')
-            print("d",jsonstring)
+            print("received",jsonstring)
             e = json.loads(jsonstring)
             e["address"] = addr
             if e["type"]=='delete':
@@ -245,6 +290,9 @@ class Server:
                 a = self.list_users()
             elif e["type"]=='list_sessions':
                 a = self.list_sessions()
+            elif e["type"]=='accept_invite': 
+                a = self.accept_invite(e,c)
+                session_id = e["session_id"]
             
                     
             if a:

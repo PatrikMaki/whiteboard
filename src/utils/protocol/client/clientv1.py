@@ -3,7 +3,7 @@ import ssl
 import json
 
 class Client:
-
+    
     HOST = '127.0.0.1'  # The server's hostname or IP address
     PORT = 65432        # The port used by the server
     #data: bytes
@@ -14,6 +14,10 @@ class Client:
     s.sendall(b'Hello, world')
     data = s.recv(1024)
     '''
+    def __init__(self,host,port):
+        self.HOST = host
+        self.PORT = port
+        
     session_id = None
     def set_session_id(self, id):
         self.session_id = id
@@ -90,6 +94,11 @@ class Client:
             elif e["type"]=="accept":
                 app.response(e)
                 app.accept_handler(e)
+            elif e["type"]=="accept_invite":
+                app.response(e)
+            elif e["type"]=="invite":
+                print("invited")
+                app.response(e)
                 
                 
         

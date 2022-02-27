@@ -825,7 +825,7 @@ class Gui:
         btn = Button(self.root, text="Prompt", width=5,
                                 height=2, bd='10', command=lambda: self.promptSaveWhiteboard())
         btn.place(x=130, y=0)
-        self.client.send({"type":"ping"})
+        self.client.send({"type":"ping"}) #this is a wakeup message from gui, i dont know why it works
         self.root.mainloop()
 
         
