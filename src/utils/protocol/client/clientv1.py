@@ -34,6 +34,16 @@ class Client:
         #global s
         self.s.sendall(n)
         self.s.sendall(json_object.encode("utf8"))
+        
+    def recvall(self, sock, n):
+        # Helper function to recv n bytes or return None if EOF is hit
+        data = bytearray()
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return None
+            data.extend(packet)
+        return data
     
     def receive(self,gui,app):
         print("receive")
@@ -43,14 +53,16 @@ class Client:
         while True:
             try:
                 # data received from server
-                data = self.s.recv(4)
+                #data = self.s.recv(4)
+                data = self.recvall(self.s, 4)
                 #print("a",data)
             except socket.timeout:
                 print("Didn't receive data! [Timeout 0.5s]")
                 continue
             n = int.from_bytes(data,byteorder='big')
             #print("b",n)
-            json_object = self.s.recv(n)
+            #json_object = self.s.recv(n)
+            json_object = self.recvall(self.s, n)
             #print("c",json_object)
             jsonstring = json_object.decode('utf8', errors='ignore')
             #print("d",jsonstring)

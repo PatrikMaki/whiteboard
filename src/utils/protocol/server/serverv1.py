@@ -220,7 +220,16 @@ class Server:
                         #c.sendall(json_object.encode("utf8"))
                     i+=1
         return i
-
+    def recvall(self, sock, n):
+        # Helper function to recv n bytes or return None if EOF is hit
+        data = bytearray()
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return None
+            data.extend(packet)
+        return data
+    
     # thread function
     def threaded(self, c, addr):
         session_id = 0
@@ -231,8 +240,9 @@ class Server:
             data=None
             try:
                 # data received from client
-                data = c.recv(4)
+                #data = c.recv(4)
                 #print("a",data)
+                data = self.recvall(c,4)
             except socket.timeout:
                 #print("Didn't receive data! [Timeout 0.5s]")
                 
@@ -250,7 +260,8 @@ class Server:
 
             n = int.from_bytes(data,byteorder='big')
             #print("b",n)
-            json_object = c.recv(n)
+            #json_object = c.recv(n)
+            json_object = self.recvall(c,n)
             #print("c",json_object)
             jsonstring = json_object.decode('utf8', errors='ignore')
             print("received",jsonstring)
