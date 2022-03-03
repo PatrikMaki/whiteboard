@@ -228,7 +228,7 @@ class Server:
             if not packet:
                 return None
             data.extend(packet)
-        return data
+        return data 
     
     # thread function
     def threaded(self, c, addr):
