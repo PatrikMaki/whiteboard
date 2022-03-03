@@ -10,7 +10,6 @@ import threading
 
 import pathlib
 
-from matplotlib import use
 from utils.protocol.server.certificate import create_certificate
 
 class Server:
