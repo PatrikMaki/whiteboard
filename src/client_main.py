@@ -1,11 +1,13 @@
-import utils.gui.application as app
+#import utils.application as app
 import utils.gui.guiv2 as gui
 import utils.protocol.client.clientv1 as client
 from _thread import *
+import sys
 #this program should first initiate the server then the client???...
 
 def main():
-    g = gui.Gui()
+    sessionid = sys.argv[1]
+    g = gui.Gui(sessionid)
     c = client.Client()
     c.connect()
     g.set_client(c)
