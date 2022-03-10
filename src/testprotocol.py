@@ -6,7 +6,7 @@ import time
 import socket
 import random
 from _thread import *
-from statistics import mean
+from statistics import mean, median
 
 HOSTNAME = '127.0.0.1'
 PORT = 65432
@@ -143,13 +143,21 @@ class Test:
     print('saving results')
     self.results.append(self.host.times)
   
-  def stop(self):
+  def end(self):
     #TODO: end session
-    print('stop(): todo')
+    print('end(): todo')
   
   def print_average_times(self):
     for run in self.results:
       print(f'average time from client to client:\t{mean(run) * 1000} ms')
+  
+  def print_median_times(self):
+    for run in self.results:
+      print(f'median time from client to client:\t{median(run) * 1000} ms')
+  
+  def print_result_size(self):
+    for run in self.results:
+      print(f'received {len(run)} timestamps from clients')
 
 
 
@@ -162,7 +170,11 @@ def main():
 
   print('results')
   test.print_average_times()
-  # todo
+  test.print_median_times()
+  test.print_result_size()
+
+  print('end test')
+  test.end()
 
 
 
