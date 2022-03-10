@@ -55,7 +55,7 @@ class TestClient:
   def __init__(self, hostname, port, name):
     self.c = client.Client(hostname, port)
     self.c.connect()
-    self.c.s.settimeout(0.5)
+    self.c.s.settimeout(2)
     self.a = app.Application(self.c)
     self.name = name
     self.times = []
@@ -74,14 +74,14 @@ class TestClient:
 
   def run_client(self, timeout):
     start_new_thread(self.receive_traffic, (timeout,))
-    start_new_thread(self.send_traffic, (timeout,))
+    #start_new_thread(self.send_traffic, (timeout,))
+    self.send_traffic(timeout)
   
   def run_host(self, timeout):
     #start_new_thread(self.receive_traffic, (timeout,))
     self.receive_traffic(timeout)
   
   def send_traffic(self, timeout):
-    # TODO: simulate gui traffic
     while timeout > time.time():
       time.sleep(random.randrange(1,3))
       
@@ -94,12 +94,15 @@ class TestClient:
       try:
         if self.name == 'host':
           print('waiting...')
+        
         data = self.c.recvall(self.c.s, 4)
       except socket.timeout:
         continue
+      
       n = int.from_bytes(data,byteorder='big')
       if self.name == 'host':
         print(f'got {n} bytes')
+      
       json_object = self.c.recvall(self.c.s, n)
       jsonstring = json_object.decode('utf8', errors='ignore')
 
