@@ -4,12 +4,50 @@ import utils.protocol.client.clientv1 as client
 import json
 import time
 import socket
-from random import randrange
+import random
 from _thread import *
 from statistics import mean
 
 HOSTNAME = '127.0.0.1'
 PORT = 65432
+
+
+
+class TestEvent:
+  def __init__(self):
+    self.test_events = [
+      { 'id': 'id', 'time': '', 'type': 'line', 'x1': 0, 'y1': 0, 'x2': 2000, 'y2': 2000, 'origin': ''},
+      { 'id': 'id', 'time': '', 'type': 'image', 'x1': 10, 'y1': 10, 'x2': 100, 'y2': 100, 'image': '' },
+      { 'id': 'id', 'time': '', 'type': 'note', 'x1': 10, 'y1': 10, 'note': "", 'frame_id': 'frame_id' },
+      { 'id': 'id', 'time': '', 'type': 'updateNote', 'x1': 10, 'y1': 10, 'note': 'text' },
+      { 'id': 'id', 'frame_id': 'frame_id', 'type': 'moveNote', 'x': 100, 'y': 100 },
+      { 'id': 'id', 'frame_id': 'delete_frame_id', 'type': 'deleteNote' },
+      { 'id': 'id', 'type': 'delete' },
+      { 'id': 'id', 'time': '', 'type': 'commentbox', 'x1': 10, 'y1': 10, 'x2': 100, 'y2': 100, 'comment': "" },
+      { 'id': 'id', 'time': '', 'type': 'updateComment', 'x1': 100, 'y1': 100, 'comment': 'text' }
+    ]
+
+    self.index_distribution = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+  def getRandomEvent(self, client_name):
+    event = self.test_events[random.choice(self.index_distribution)]
+    
+    if 'origin' in event:
+      event['origin'] = client_name
+    
+    if 'image' in event:
+      # create string with size of an image
+      image_size = 10000 # 10KB
+      image_string = ''
+      for i in range(1000):
+        image_string += '0123456789'
+      
+      event['image'] = image_string
+    
+    if 'time' in event:
+      event['time'] = time.time()
+    
+    return event
 
 
 
@@ -35,29 +73,20 @@ class TestClient:
     self.a.accept(session, user)
 
   def run_client(self, timeout):
-    # TODO: simulate random client
     start_new_thread(self.receive_traffic, (timeout,))
     start_new_thread(self.send_traffic, (timeout,))
   
   def run_host(self, timeout):
-    # TODO: get measurements
     #start_new_thread(self.receive_traffic, (timeout,))
     self.receive_traffic(timeout)
   
   def send_traffic(self, timeout):
     # TODO: simulate gui traffic
     while timeout > time.time():
-      time.sleep(randrange(1,3))
-      e = {
-        'id': 'id',
-        'time': time.time(),
-        'type': 'line',
-        'x1': 1,
-        'y1': 2,
-        'x2': 3,
-        'y2': 4,
-        'origin': self.name
-      }
+      time.sleep(random.randrange(1,3))
+      
+      event = TestEvent()
+      e = event.getRandomEvent(self.name)
       self.c.send(e)
   
   def receive_traffic(self, timeout):
@@ -113,6 +142,10 @@ class Test:
 
     print('saving results')
     self.results.append(self.host.times)
+  
+  def stop(self):
+    #TODO: end session
+    print('stop(): todo')
   
   def print_average_times(self):
     for run in self.results:
