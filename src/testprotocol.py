@@ -71,6 +71,21 @@ class TestClient:
   
   def accept(self, session, user):
     self.a.accept(session, user)
+  
+  def receice_event(self):
+    try:
+      data = self.c.recvall(self.c.s, 4)
+    except socket.timeout:
+      return {}
+
+    n = int.from_bytes(data,byteorder='big')
+
+    json_object = self.c.recvall(self.c.s, n)
+    jsonstring = json_object.decode('utf8', errors='ignore')
+
+    e: dict = json.loads(jsonstring)
+
+    return e
 
   def run_client(self, timeout):
     start_new_thread(self.receive_traffic, (timeout,))
@@ -83,7 +98,8 @@ class TestClient:
   
   def send_traffic(self, timeout):
     while timeout > time.time():
-      time.sleep(random.randrange(1,3))
+      time_to_sleep = random.randrange(1, 3)
+      time.sleep(time_to_sleep)
       
       event = TestEvent()
       e = event.getRandomEvent(self.name)
@@ -122,7 +138,15 @@ class Test:
 
     self.host = TestClient(server_ip, server_port, 'host')
     self.host.login()
+    e = self.host.receice_event()
+
     self.host.create(self.test_name)
+    e = self.host.receice_event()
+
+    if 'type' in e and e['type'] == 'session_response':
+      self.host.a.session_response(e)
+    else:
+      print('could not create session for testing')
 
     for i in range(1, client_count):
       test_client = TestClient(server_ip, server_port, f'client{i}')
@@ -130,6 +154,8 @@ class Test:
       test_client.request(self.test_name)
 
       self.host.accept(self.test_name, test_client.name)
+
+      test_client.c.set_session_id(self.host.a.get_session_id())
 
       self.clients.append(test_client)
 
