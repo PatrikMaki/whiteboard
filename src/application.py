@@ -76,7 +76,8 @@ class Application:
               print("session created:",e)
               
        def response(self,e):
-              print(e)
+              print("response:",e)
+              
        def session_response(self,e):
               if e["status"]=='ok':
                      self.session_id = e["id"]
@@ -96,7 +97,7 @@ class Application:
                
               self.events.append(e)
               self.client.send(e)
-              print("invite")
+              #print("invite")
               
        def accept_invite(self,session_id):
               e={
@@ -108,7 +109,7 @@ class Application:
               self.events.append(e)
               self.client.send(e)
               self.session_id = session_id
-              print("accept invite")
+              #print("accept invite")
               
        def requestToJoin(self,session_id):
               """ 
@@ -123,7 +124,7 @@ class Application:
                
               self.events.append(e)
               self.client.send(e)
-              print("request")
+              #print("request")
               
        def accept(self,session_id,user_id):
               """ 
@@ -138,7 +139,7 @@ class Application:
                
               self.events.append(e)
               self.client.send(e)
-              print("accept")
+              #print("accept")
        def accept_handler(self, e:dict):
               self.session_id = e["session_id"]
        def decline(self,session_id,user_id):
@@ -151,7 +152,7 @@ class Application:
                
               self.events.append(e)
               self.client.send(e)
-              print("decline")
+              #print("decline")
              
        def list_users(self):
               e={
@@ -160,7 +161,7 @@ class Application:
               }
               self.events.append(e)
               self.client.send(e)
-              print("list users request")
+              #print("list users request")
               
        def list_users_response(self,e:dict):
               print(e)
@@ -172,7 +173,7 @@ class Application:
               }
               self.events.append(e)
               self.client.send(e)
-              print("list users request")
+              #print("list users request")
               
        def list_sessions_response(self,e:dict):
               print(e)
@@ -234,46 +235,7 @@ class Application:
                             else:
                                    self.help()
                       
-               #TODO: create gui using frames!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-               '''
-               root = Tk()
-               root.columnconfigure(0, weight=1)
-               root.rowconfigure(0, weight=1)
-
-               #clientv1.connect()#TODO: move to main client_main
-               self.frame_main = Frame(root, bg="gray")
-               self.frame_main.grid(sticky='news')
-               self.btn = Button(self.frame_main, text='QUIT!', width=5,
-                  height=2, bd='10', command=root.destroy)
-               self.btn.grid(row=0, column=0, pady=(5, 0), sticky='nw')
-               self.btn = Button(self.frame_main, text='Create session', width=5,
-                  height=2, bd='10', command=lambda: self.addSession())
-               self.btn.grid(row=1, column=0, pady=(5, 0), sticky='nw')
-               
-               # Create a frame for the canvas with non-zero row&column weights
-               self.frame_canvas = Frame(self.frame_main)
-               self.frame_canvas.grid(row=2, column=0, pady=(5, 0), sticky='nw')
-               self.frame_canvas.grid_rowconfigure(0, weight=1)
-               self.frame_canvas.grid_columnconfigure(0, weight=1)
-               # Set grid_propagate to False to allow 5-by-5 buttons resizing later
-               self.frame_canvas.grid_propagate(False)
-
-               # Add a canvas in that frame
-               self.canvas = Canvas(self.frame_canvas, bg="yellow")
-               self.canvas.grid(row=0, column=0, sticky="news")
-
-               # Link a scrollbar to the canvas
-               self.vsb = Scrollbar(self.frame_canvas, orient="vertical", command=self.canvas.yview)
-               self.vsb.grid(row=0, column=1, sticky='ns')
-               self.canvas.configure(yscrollcommand=self.vsb.set)
-               # Create a frame to contain the buttons
-               self.frame_buttons = Frame(self.canvas, bg="blue")
-               self.canvas.create_window((0, 0), window=self.frame_buttons, anchor='nw')
-               # Add 9-by-5 buttons to the frame
-               
-               #######
-               root.mainloop()
-               '''
+               #TODO: create gui using frames!
                print("end")
 
 def main():

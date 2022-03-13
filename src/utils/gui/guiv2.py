@@ -531,8 +531,10 @@ class Gui:
     def savePng(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
-        x = self.canvas.winfo_self.rootx()
-        y = self.canvas.winfo_self.rooty()
+        x = self.canvas.canvasx(0)
+        y = self.canvas.canvasy(0)
+        #x = self.canvas.winfo_self.rootx()
+        #y = self.canvas.winfo_self.rooty()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
@@ -543,8 +545,10 @@ class Gui:
     def saveJpeg(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
-        x = self.canvas.winfo_self.rootx()
-        y = self.canvas.winfo_self.rooty()
+        #x = self.canvas.winfo_self.rootx()
+        #y = self.canvas.winfo_self.rooty()
+        x = self.canvas.canvasx(0)
+        y = self.canvas.canvasy(0)
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
@@ -735,8 +739,11 @@ class Gui:
             # print("not work")
             pass
 
+    def trigger(self):
+        self.root.event_generate("<<promt>>",when="tail")
+    
     # creates new window to ask to save whiteboard
-    def promptSaveWhiteboard(self):
+    def promptSaveWhiteboard(self, event):
         new_window = Tk()
         new_window.geometry("372x150")
         frame = Frame(new_window, bg="gray", width=700, height=700)
@@ -747,10 +754,10 @@ class Gui:
                         height=2, bd='10', command=lambda: [new_window.destroy()])
         png_btn = Button(frame, text="save PNG", width=10,
                          height=2, bd='10',
-                         command=lambda: [new_window.destroy(), time.sleep(1), self.savePng()])
+                         command=lambda: [new_window.destroy(), time.sleep(1), self.savePng(), self.root.destroy()])
         jpeg_btn = Button(frame, text="save JPEG", width=10,
                           height=2, bd='10',
-                          command=lambda: [new_window.destroy(), time.sleep(1), self.saveJpeg()])
+                          command=lambda: [new_window.destroy(), time.sleep(1), self.saveJpeg(), self.root.destroy()])
         no_btn.grid(row=1, column=1)
         png_btn.grid(row=2, column=0)
         jpeg_btn.grid(row=2, column=2)
@@ -769,7 +776,7 @@ class Gui:
         
         self.session_id = session_id
         #self.root.deiconify()
-        print("kissa",self.session_id)
+        #print("kissa",self.session_id)
         self.root.title(self.session_id)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
@@ -833,9 +840,12 @@ class Gui:
 
         # only needed for testing
         # Delete this later when endsession is connected to promptsavewhiteboard
-        btn = Button(self.root, text="Prompt", width=5,
-                                height=2, bd='10', command=lambda: self.promptSaveWhiteboard())
-        btn.place(x=130, y=0)
+        #btn = Button(self.root, text="Prompt", width=5,
+                                #height=2, bd='10', command=lambda: self.promptSaveWhiteboard())
+        #btn.place(x=130, y=0)
+        
+        self.root.bind("<<promt>>", self.promptSaveWhiteboard)
+        
         self.client.send({"type":"ping"}) #this is a wakeup message from gui, i dont know why it works
         self.root.mainloop()
 

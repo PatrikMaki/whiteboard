@@ -20,7 +20,7 @@ class Server:
     print_lock = threading.Lock()
     sessions = {} #key is session id(string ot int) values is events list
     users = {} #key is user id and value is connection
-    connections = {} #key is address string ip:port, value is user
+    #connections = {} #key is address string ip:port, value is user
     hosts = {} #key is host session_id and value is connection
     members = {} #key is session_id and value is a list of connections
     invitations = {} #key user_id value is session_id
@@ -232,11 +232,12 @@ class Server:
     # thread function
     def threaded(self, c, addr):
         session_id = 0
-        c.settimeout(0.5)
+        #c.settimeout(0.5)
         i=0
         #print("new client",c)
         while True:
             data=None
+            c.settimeout(0.5)
             try:
                 # data received from client
                 #data = c.recv(4)
@@ -247,7 +248,7 @@ class Server:
                 
                 i = self.update_events(c,i,addr,session_id)
                 continue
-        
+            c.settimeout(30)
             if not data:
                 print('Bye')
                 self.disconnect(c,addr)

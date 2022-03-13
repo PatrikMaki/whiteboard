@@ -10,7 +10,7 @@ from statistics import mean, median
 
 HOSTNAME = '127.0.0.1'
 HOSTNAME = '86.115.16.29'
-HOSTNAME = '192.168.1.33'
+#HOSTNAME = '192.168.1.33'
 PORT = 65432
 
 

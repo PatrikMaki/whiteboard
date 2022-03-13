@@ -111,11 +111,10 @@ class Client:
             elif e["type"]=="invite":
                 print("invited")
                 app.response(e)
-                
-                
-        
-
-
-
-
-#print('Received', repr(data))
+            elif e["type"]=="disconnect":
+                print("disconnect session")
+                try:
+                    gui.trigger()
+                except Exception as e:
+                    print("Error",e)
+                    
