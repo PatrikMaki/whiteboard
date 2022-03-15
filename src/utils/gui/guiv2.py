@@ -751,7 +751,7 @@ class Gui:
         label = Label(frame, text="Save whiteboard?")
         label.grid(row=0, column=1)
         no_btn = Button(frame, text="No", width=5,
-                        height=2, bd='10', command=lambda: [new_window.destroy()])
+                        height=2, bd='10', command=lambda: [new_window.destroy(), self.root.destroy()])
         png_btn = Button(frame, text="save PNG", width=10,
                          height=2, bd='10',
                          command=lambda: [new_window.destroy(), time.sleep(1), self.savePng(), self.root.destroy()])
