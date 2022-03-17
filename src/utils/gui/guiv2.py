@@ -531,12 +531,20 @@ class Gui:
     def savePng(self):
         # takes a screenshot of the tkinter window
         # TODO: better place to save screenshot?
-        x = self.canvas.canvasx(0)
-        y = self.canvas.canvasy(0)
+        #c = self.canvas.coords()
+        #x = self.canvas.canvasx(0)
+        #y = self.canvas.canvasy(0)
         #x = self.canvas.winfo_self.rootx()
         #y = self.canvas.winfo_self.rooty()
+        
+        x = self.root.winfo_x()
+        y = self.root.winfo_y()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
+        print("x",x)
+        print("y",y)
+        print("w",w)
+        print("h",h)
         # print(x, y, w, h)
         #ss = grab(bbox=(x, y, w + x, h + y))
         ss = ImageGrab.grab(bbox=(x, y, w + x, h + y))
@@ -548,12 +556,13 @@ class Gui:
         # TODO: better place to save screenshot?
         #x = self.canvas.winfo_self.rootx()
         #y = self.canvas.winfo_self.rooty()
-        x = self.canvas.canvasx(0)
-        y = self.canvas.canvasy(0)
+        x = self.root.winfo_x()
+        y = self.root.winfo_y()
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
         ss = ImageGrab.grab(bbox=(x, y, w + x, h + y))
+        #ss = grab(bbox=(x, y, w + x, h + y))
         ss.show()
         ss.save("./../whiteboard.jpeg")
 
