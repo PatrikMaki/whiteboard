@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageGrab
 import time
 import base64
 import os
@@ -538,7 +538,8 @@ class Gui:
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
-        ss = grab(bbox=(x, y, w + x, h + y))
+        #ss = grab(bbox=(x, y, w + x, h + y))
+        ss = ImageGrab.grab(bbox=(x, y, w + x, h + y))
         ss.show()
         ss.save("./../whiteboard.png")
 
@@ -552,7 +553,7 @@ class Gui:
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
         # print(x, y, w, h)
-        ss = grab(bbox=(x, y, w + x, h + y))
+        ss = ImageGrab.grab(bbox=(x, y, w + x, h + y))
         ss.show()
         ss.save("./../whiteboard.jpeg")
 
